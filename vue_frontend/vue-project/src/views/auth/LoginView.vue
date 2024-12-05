@@ -1,38 +1,35 @@
 <script setup>
-import { reactive } from 'vue';
+import { onMounted, reactive } from 'vue';
 import useAuthStore from '@/stores/auth';
 
 const authStore = useAuthStore();
+const { authenticate } = useAuthStore();
 
 const formData = reactive({
-    name: '',
     email: '',
     password: '',
-    password_confirmation: '',
 });
+
+onMounted(
+    () => (authStore.errors.value = {})
+)
 
 </script>
 
 
-
 <template>
     <main>
-        <h1 class="title">Register a new Account {{ authStore.user }}</h1>
-        <form @submit.prevent="authStore.authenticate('register', formData)">
-            <div>
-                <input type="text" placeholder="Name" v-model="formData.name" />
-            </div>
+        <h1 class="title">Log In</h1>
+        <form @submit.prevent="authenticate('login', formData)" class="w-1/2 mx-auto space-y-6">
             <div>
                 <input type="email" placeholder="Email" v-model="formData.email" />
+                <p v-if="authStore.errors.email" class="error">{{ authStore.errors.email[0] }}</p>
             </div>
             <div>
                 <input type="password" placeholder="Password" v-model="formData.password" />
+                <p v-if="authStore.errors.password" class="error">{{ authStore.errors.password[0] }}</p>
             </div>
-            <div>
-                <input type="password" placeholder="Confirm Password" name="confirm_password"
-                    v-model="formData.password_confirmation" />
-            </div>
-            <button class="primary-btn">Register</button>
+            <button class="primary-btn">Log In</button>
         </form>
     </main>
 </template>

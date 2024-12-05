@@ -3605,3 +3605,3047 @@ e os controllers adequados, também...
 
 
 ok... tudo parece estar certo...
+
+
+
+
+
+
+
+
+
+
+
+
+
+A MELHOR PRACTICE É TER A FUNCTION MAIS PARA CIMA,
+
+E AÍ 
+
+RODAR 
+
+O CÓDIGO...
+
+
+
+
+
+
+--> PRECISAMOS APENAS DA FUNCTION DE 'authenticate',
+
+
+não precisamos da store inteira...
+
+
+
+
+--> É POR ISSO QUE PODEMOS ESCREVER ASSIM:
+
+
+
+
+
+
+
+
+
+
+
+
+<script setup>
+import { reactive } from 'vue';
+import useAuthStore from '@/stores/auth';
+
+const { authenticate } = useAuthStore();
+
+const formData = reactive({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+});
+
+</script>
+
+
+
+<template>
+  <main>
+    <h1 class="title">Register a new Account</h1>
+    <form @submit.prevent="authenticate('register', formData)" class="w-1/2 mx-auto space-y-6">
+      <div>
+        <input type="text" placeholder="Name" v-model="formData.name" />
+      </div>
+      <div>
+        <input type="email" placeholder="Email" v-model="formData.email" />
+      </div>
+      <div>
+        <input type="password" placeholder="Password" v-model="formData.password" />
+      </div>
+      <div>
+        <input type="password" placeholder="Confirm Password" name="confirm_password"
+          v-model="formData.password_confirmation" />
+      </div>
+      <button class="primary-btn">Register</button>
+    </form>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+
+AGORA DEVEMOS HANDLAR ALGUNS DOS ERRORS, PROBLEMAS QUE PODEMOS TER COM ESSE APPROACH...
+
+
+
+
+
+
+
+
+
+--> QUEREMOS MOSTRAR OS ERRORS QUE TEREMOS, DO SERVER,
+
+PARA O USER...
+
+
+
+
+
+
+
+--> EX:
+
+
+
+  actions: {
+    authenticate: async (apiRoute, formData) => {
+      const res = await fetch(`/api/${apiRoute}`, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      console.log(data);
+    },
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+NESSE STORE,
+
+QUEREMOS CHECAR SE A DATA TEM ALGUM ERROR...
+
+
+
+SE TIVER ALGUM ERROR,
+
+QUEREMOS 
+
+
+
+MOSTRAR ELE AO USER...
+
+
+
+
+
+FAEZMOS TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+  actions: {
+    authenticate: async (apiRoute, formData) => {
+      const res = await fetch(`/api/${apiRoute}`, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (data.errors) {
+        return data.errors;
+      } else {
+        
+      }
+    },
+  },
+
+
+
+
+
+
+
+
+
+
+MAS PODEMOS MELHORAR ISSO....
+
+
+
+PODEMOS DEIXAR 1 STATE GLOBAL,
+
+E AÍ ATUALIZAR ESSE STATE, EM CASOS DE ERROR...
+
+
+
+
+
+
+
+
+
+
+
+
+
+TIPO ALGO ASSIM:
+
+
+
+
+
+
+
+
+import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => {
+    return {
+      user: null,
+      errors: {},
+    };
+  },
+  actions: {
+    authenticate: async (apiRoute, formData) => {
+      const res = await fetch(`/api/${apiRoute}`, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (data.errors) {
+        this.errors = data.errors;
+      } else {
+        this.user = data.user;
+      }
+    },
+  },
+  //   getters: {
+  //     userAge: (state) => state.user
+  // }, // * Computed properties are set here.
+});
+
+export default useAuthStore;
+
+
+
+
+
+
+
+
+
+
+
+
+DEPOIS DISSO, VAMOS NA VIEW DE 'RegisterView',
+
+
+
+E AÍ QUEREMOS PEGAR OS 'errors',
+
+junto com a function de 'authenticate',
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+<script setup>
+import { reactive } from 'vue';
+import useAuthStore from '@/stores/auth';
+
+const { authenticate, errors } = useAuthStore();
+
+const formData = reactive({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+});
+
+</script>
+
+
+
+<template>
+  <main>
+    <h1 class="title">Register a new Account</h1>
+    <form @submit.prevent="authenticate('register', formData)" class="w-1/2 mx-auto space-y-6">
+      <div>
+        <input type="text" placeholder="Name" v-model="formData.name" />
+        <p>{{ errors.name }}</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+certo...
+
+
+
+
+
+MAS NÃO VEREMOS O TEXT NA TELA,
+
+
+
+
+QUANDO FICAMOS COM 1 ERROR...
+
+
+MAS PQ ISSO?
+
+
+
+
+É POR CONTA DA MANEIRA PELA QUAL ESTAMOS TENTANDO 
+
+
+
+ACESSAR OS 'errors'...
+
+
+
+
+
+
+
+
+
+-_> O PROBLEMA:
+
+
+''WHEN WE ARE TRYING TO ACCESS OUR STATE,
+  __ WE ABSOLUTELY __ CANNOT DESTRUCTURE OUR OBJECT...''
+
+
+
+''IF WE DESTRUCTURE A STATE OF A STORE,
+THE STORE LOSES THE REACTIVITY''...
+
+
+
+
+-> É POR ISSO QUE DEVEMOS ESCREVER ASSIM:
+
+
+
+
+
+
+
+
+<script setup>
+import { reactive } from 'vue';
+import useAuthStore from '@/stores/auth';
+
+const authStore = useAuthStore();
+const { authenticate } = useAuthStore();
+
+const formData = reactive({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+});
+
+</script>
+
+
+
+<template>
+  <main>
+    <h1 class="title">Register a new Account</h1>
+    <form @submit.prevent="authenticate('register', formData)" class="w-1/2 mx-auto space-y-6">
+      <div>
+        <input type="text" placeholder="Name" v-model="formData.name" />
+        <p>{{ authStore.errors.name }}</p>
+      </div>
+      <div>
+        <input type="email" placeholder="Email" v-model="formData.email" />
+      </div>
+      <div>
+        <input type="password" placeholder="Password" v-model="formData.password" />
+      </div>
+      <div>
+        <input type="password" placeholder="Confirm Password" name="confirm_password"
+          v-model="formData.password_confirmation" />
+      </div>
+      <button class="primary-btn">Register</button>
+    </form>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+AGORA PODEMOS ESTILIZAR MELHOR ESSE paragraph...
+
+
+
+
+
+
+
+
+
+
+
+
+
+''IF YOU WANT TO GRAB YOUR STATE AND KEEP THE REACTIVITY,
+YOU CANNOT DESTRUCURE... INSTEAD OF DESTRUCTURING,
+GRAB THE WHOLE STORE, AND THEN USE DOT NOTATION''...
+
+
+
+
+
+
+
+
+
+
+
+
+FICOU TIPO ASSIM:
+
+
+
+
+
+
+
+
+<script setup>
+import { reactive } from 'vue';
+import useAuthStore from '@/stores/auth';
+
+const authStore = useAuthStore();
+const { authenticate } = useAuthStore();
+
+const formData = reactive({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+});
+
+</script>
+
+
+<template>
+  <main>
+    <h1 class="title">Register a new Account</h1>
+    <form @submit.prevent="authenticate('register', formData)" class="w-1/2 mx-auto space-y-6">
+      <div>
+        <input type="text" placeholder="Name" v-model="formData.name" />
+        <p v-if="authStore.errors.name" class="error">{{ authStore.errors.name[0] }}</p>
+      </div>
+      <div>
+        <input type="email" placeholder="Email" v-model="formData.email" />
+        <p v-if="authStore.errors.email" class="error">{{ authStore.errors.email[0] }}</p>
+      </div>
+      <div>
+        <input type="password" placeholder="Password" v-model="formData.password" />
+        <p v-if="authStore.errors.password" class="error">{{ authStore.errors.password[0] }}</p>
+      </div>
+      <div>
+        <input type="password" placeholder="Confirm Password" name="confirm_password"
+          v-model="formData.password_confirmation" />
+      </div>
+      <button class="primary-btn">Register</button>
+    </form>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+SE CONSEGUIMOS FAZER REGISTER, FICAMOS COM 1 OBJECT 
+
+COM O USER QUE CONSEGUIU FAZER REGISTER...
+
+
+
+
+
+
+
+
+
+
+
+--> AGORA, NO CASO,
+
+TEMOS QUE FAZER ALGO COM A DATA DO USER,
+
+QUANDO O USER CONSEGUIR FAZER REGISTER...
+
+
+
+
+
+
+
+QUEREMOS:
+
+
+
+1) FAZER O SAVE DA DATA DO USER, NA LOCAL STORAGE...
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+  actions: {
+    async authenticate(apiRoute, formData) {
+      const res = await fetch(`/api/${apiRoute}`, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (data.errors) {
+        console.log(data.errors);
+        this.errors = data.errors;
+      } else {
+        localStorage.setItem('token', data.token);
+      }
+    },
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+DEPOIS DISSO, SETTAMOS O USER NO STATE DO NEGÓCIO...
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+  actions: {
+    async authenticate(apiRoute, formData) {
+      const res = await fetch(`/api/${apiRoute}`, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (data.errors) {
+        console.log(data.errors);
+        this.errors = data.errors;
+      } else {
+        localStorage.setItem('token', data.token);
+        this.user = data.user;
+      }
+    },
+  },
+
+
+
+
+
+
+
+
+
+
+TAMBÉM QUEREMOS FAZER REDIRECT DO USER PARA A HOME PAGE,
+
+MAS ISSO VAI PRECISAR DE 1 POUCO DE SETUP...
+
+
+
+
+
+
+
+
+
+É POR ISSO QUE COLOCAMOS UM TODO...
+
+
+
+
+
+
+
+
+
+
+PARA GARANTIR QUE TUDO ISSO FUNCIONE,
+
+
+PRECISAMOS USAR O 'user'
+
+
+EM ALGUM LUGAR DO APP...
+
+
+
+
+
+
+
+
+--> DEVEMOS USAR O USER NA NAVBAR,
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router';
+import useAuthStore from './stores/auth';
+
+const authStore = useAuthStore();
+
+</script>
+
+<template>
+  <header>
+    <nav>
+      <RouterLink :to="{ name: 'home' }" class="nav-link">Home</RouterLink>
+      <p v-if="authStore.user" class="text-white">Welcome {{ authStore.user.name }}</p>
+      <div>
+        <RouterLink :to="{ name: 'register' }" class="nav-link">Register</RouterLink>
+      </div>
+    </nav>
+  </header>
+
+  <RouterView />
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-> PODEMOS CHECAR O LOCAL STORAGE,
+
+
+
+PARA VER SE TEMOS KEY-VALUE PAIRS ALI...
+
+
+
+
+
+
+
+
+
+-> ao registrar, 1 token é adicionada na local storage...
+
+
+e o nome do user aparece lá em cima,
+
+na navbar...
+
+
+
+
+
+
+
+
+
+-> AGORA O QUE RESTA FAZER É REDIRECIONAR O USER à HOME PAGE...
+
+
+
+
+
+
+
+
+
+-> PARA ISSO, PRECISAMOS USAR O VUE ROUTER PARA REDIRECT THE USER TO 
+ANOTHER PAGE...
+
+
+
+
+
+
+-> PARA ISSO, PRECISAMOS DE ACESSO AO VUE ROUTER...
+
+
+
+
+--> NA OPINIÃO DO PROFESSOR,
+
+A MELHOR MANEIRA DE FAZER ISSO É 
+
+
+''ADD THE VUE-ROUTER, AS A PLUG-IN, TO PINEA'...
+
+
+
+
+
+
+
+
+
+
+
+--> PINEA PLUGINS...
+
+
+
+
+
+
+
+
+
+--> ADD VUE ROUTER AS A PLUGIN, TO PINE STORE...
+
+
+
+
+
+
+'ADDING NEW EXTERNAL PROPERTIES' --> nas docs do pinea..
+
+
+
+
+
+
+-> VAMOS USAR ISSO 
+  EM MÚLTIPLOS LUGARES DO APP,
+
+  POR ISSO É BOM DEFINIR ISSO NO PINEA,
+
+  E DEFINIR COMO PLUGIN...
+
+
+
+
+
+
+
+
+--> MAS COMO FAZEMOS ISSO?
+
+
+
+
+
+
+
+
+
+
+
+--> VAMOS ATÉ 'main.js',
+
+
+
+em qeu temos este código:
+
+
+
+
+
+import './assets/main.css'
+
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+
+import App from './App.vue'
+import router from './router'
+
+const app = createApp(App)
+
+app.use(createPinia())
+app.use(router)
+
+app.mount('#app')
+
+
+
+
+
+
+
+
+
+
+
+NESSE ARQUIVO, ESTAMOS 
+
+
+DIZENDO AO NOSSO APP PARA USAR O PINEA STORE...
+
+
+
+
+
+
+
+
+-> A PRIMEIRA COISA QUE DEVEMOS FAZER É 
+
+SALVAR O 'pinea' em 1 VARIABLE SEPARADA,
+
+
+
+E AÍ 
+
+
+
+DEFINIR ESSE PLUGIN...
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+import './assets/main.css'
+
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+
+import App from './App.vue'
+import router from './router'
+
+const app = createApp(App)
+const pinia = createPinia();
+
+pinia.use()
+
+app.use(pinia)
+app.use(router)
+
+app.mount('#app')
+
+
+
+
+
+
+
+
+
+
+
+DENTRO DE USE(),
+
+colocamos uma CALLBACK FUNCTION,
+
+QUE VAI RECEBER A STORE...
+
+
+
+
+--> AÍ, DENTRO DO BODY DA CALLBACK FUNCTION,
+
+
+definimos assim:
+
+
+
+
+
+import './assets/main.css';
+
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+
+import App from './App.vue';
+import router from './router';
+
+const app = createApp(App);
+const pinia = createPinia();
+
+pinia.use(({ store }) => {
+  store.router = router;
+});
+
+app.use(pinia);
+app.use(router);
+
+app.mount('#app');
+
+
+
+
+
+
+
+COM ISSO, DEFINIMOS O router como 1 nova propriedade,
+
+dentro do store do pinia...
+
+
+
+
+
+
+
+--> NOS DOCS:
+
+
+
+
+''IF YOU HAVE SOMETHING THAT IS NOT REACTIVE IN THE PINEA STORE,
+YOU SHOULD WRAP IT WITH THE 'markRaw()' function, of pinea''...
+
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+import './assets/main.css';
+
+import { createApp, markRaw } from 'vue';
+import { createPinia } from 'pinia';
+
+import App from './App.vue';
+import router from './router';
+
+const app = createApp(App);
+const pinia = createPinia();
+
+pinia.use(({ store }) => {
+  store.router = markRaw(router);
+});
+
+app.use(pinia);
+app.use(router);
+
+app.mount('#app');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+
+
+
+
+
+
+ISSO FEITO, ABRIMOS O ARQUIVO de 'auth.js':
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => {
+    return {
+      user: null,
+      errors: {},
+    };
+  },
+  actions: {
+    async authenticate(apiRoute, formData) {
+      const res = await fetch(`/api/${apiRoute}`, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (data.errors) {
+        console.log(data.errors);
+        this.errors = data.errors;
+      } else {
+        localStorage.setItem('token', data.token);
+        this.user = data.user;
+        // TODO - redirect to home page
+      }
+    },
+  },
+  //   getters: {
+  //     userAge: (state) => state.user
+  // }, // * Computed properties are set here.
+});
+
+export default useAuthStore;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LEMBRE-SE:
+
+USAMOS A KEYWORD 'this'
+
+PARA ACESSAR O NOSSO STATE...
+
+
+E ESSA 
+
+
+KEYWORD SE REFERE AO STORE EM SI..
+
+
+
+
+
+
+
+
+ISSO QUE DIZER QUE PODEMOS REDIRECIONAR O USER COM 
+
+
+this.router.push({name: 'home'});
+
+
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+
+import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => {
+    return {
+      user: null,
+      errors: {},
+    };
+  },
+  actions: {
+    async authenticate(apiRoute, formData) {
+      const res = await fetch(`/api/${apiRoute}`, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (data.errors) {
+        console.log(data.errors);
+        this.errors = data.errors;
+      } else {
+        localStorage.setItem('token', data.token);
+        this.user = data.user;
+        this.router.push({ name: 'home' }); // * Use the router embedded into pinea, in app.js
+      }
+    },
+  },
+  //   getters: {
+  //     userAge: (state) => state.user
+  // }, // * Computed properties are set here.
+});
+
+export default useAuthStore;
+
+
+
+
+
+
+
+
+
+
+
+OK, FUNCIONOU...
+
+
+
+
+
+
+A PRÓXIMA COISA QUE QUEREMOS FAZER É 
+
+
+
+
+
+
+''UPDATE OUR NAVIGATION,
+  BASED ON THE USER'S STATE''...
+
+
+
+
+
+
+
+
+
+
+
+--> BASICAMENTE,
+
+  PRECISAMOS ATUALIZAR 
+
+  O STATE DO USER, DO PINEA,
+
+
+  USANDO A DATABASE...
+
+
+
+
+
+
+
+
+
+
+-> ISSO PQ ESTAMOS, NO MOMENTO, ESTAMOS ATUALIZANDO O STATE 
+
+DO USER 
+
+A PARTIR DA USER REGISTRATION...
+
+
+
+
+
+
+
+-> MAS QUEREMOS CHECAR PELO USER STATE, USANDO O LOCAL STORAGE,
+
+A CADA PAGE RELOAD...
+
+
+
+
+
+
+
+
+--> PARA ISSO, VAMOS USAR O TOKEN DA LOCAL STORAGE... PQ ISSO 
+VAI EXISTIR,
+
+MESMO QUANDO RECARREGAMOS A PAGE...
+
+
+
+
+
+
+
+
+
+
+--> LEMBRE-SE:
+
+
+
+
+NA API DO LARAVEL,
+
+TEMOS ESTA ROUTE:
+
+
+
+
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+
+
+
+
+
+
+
+
+
+TEMOS ESSA ROUTE AÍ,
+
+
+DE 'user',
+
+
+
+QUE É ___ PROTEGIDA__ com o 'auth:sanctum'... ISSO QUER DIZER,
+
+
+EM OUTRAS PALAVRAS,
+
+
+QUE ELE É 'LOOKING FOR A TOKEN'... SE A TOKEN ESTIVER 
+
+CORRETA,
+
+ELE NOS FORNECE 1 PROPER USER...
+
+
+
+
+
+
+
+
+
+
+--> É POR ISSO QUE VAMOS:
+
+
+
+1) CREATE A FUNCTION FOR THAT, 
+
+2) AND CALL THAT FUNCTION WHENEVER WE WANT TO,
+
+3) TO GRAB THE USER AND UPDATE OUR STATE...
+
+
+
+
+
+
+
+
+
+
+--> É POR ISSO QUE PRECISAMOS DE OUTRA ACTION/FUNCTION...
+
+
+
+
+
+
+
+--> PODEMOS COMEÇAR COM ALGO ASSIM:
+
+
+
+
+
+import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => {
+    return {
+      user: null,
+      errors: {},
+    };
+  },
+  actions: {
+    // * GET authenticated user:
+
+    async getUser() {
+      const res = await fetch('/api/user');
+      const data = await res.json();
+      this.user = data.user;
+    },
+
+
+
+
+
+
+
+
+  
+-> mas podemos colocar 1 if statement prévio,
+
+checando se o token já existe no local storage,
+
+tipo assim:
+
+
+
+
+import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => {
+    return {
+      user: null,
+      errors: {},
+    };
+  },
+  actions: {
+    // * GET authenticated user:
+
+    async getUser() {
+      if (!localStorage.getItem('token')) {
+        const res = await fetch('/api/user');
+        const data = await res.json();
+        this.user = data.user;
+      }
+    },
+
+
+
+
+
+
+
+
+  --> CERTO...
+
+
+
+
+
+MAS PRECISAMOS DE ALGUNS HEADERS, NESSE REQUEST...
+
+
+
+
+--> PRECISAMOS DE HEADERS JUSTAMENTE PQ ESSA ROUTE É 
+PROTEGIDA PELO 'auth:sanctum'...
+
+
+
+
+
+
+
+--> isso quer dizer que o 'auth:sanctum'
+  ESTÁ PROCURANDO POR UMA AUTHORIZATION KEY,
+  DIRETAMENTE NOS HEADERS...
+
+
+
+
+
+POR ISSO ESCREVEMOS ASSIM:
+
+
+
+
+
+
+
+
+import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => {
+    return {
+      user: null,
+      errors: {},
+    };
+  },
+  actions: {
+    // * GET authenticated user:
+
+    async getUser() {
+      if (!localStorage.getItem('token')) {
+        const res = await fetch('/api/user', {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        const data = await res.json();
+        this.user = data.user;
+      }
+    },
+
+
+
+
+
+
+
+
+
+
+  ok... mas queremos settar o user como a data APENAS SE A RESPONSE ESTIVER OK...
+
+
+
+
+
+
+
+
+  EX:
+
+
+
+
+
+
+
+
+
+  import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => {
+    return {
+      user: null,
+      errors: {},
+    };
+  },
+  actions: {
+    // * GET authenticated user:
+
+    async getUser() {
+      if (!localStorage.getItem('token')) {
+        const res = await fetch('/api/user', {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        const data = await res.json();
+        if (res.ok) {
+          this.user = data.user;
+        }
+      }
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  OK... MAS PRECISAMOS CHAMAR ESSA ACTION EM ALGUM LUGAR...
+
+
+
+
+
+
+
+
+
+
+
+  -> FAZEMOS ESSE CALL NO HOOK DE 'onMounted()',
+
+  DIRETAMENTE NO 'App.vue'... (para ser executado a cada page reload)...
+
+
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router';
+import useAuthStore from './stores/auth';
+import { onMounted } from 'vue';
+
+const authStore = useAuthStore();
+
+onMounted(() => {
+  authStore.getUser();
+});
+
+</script>
+
+<template>
+  <header>
+    <nav>
+      <RouterLink :to="{ name: 'home' }" class="nav-link">Home</RouterLink>
+      <p v-if="authStore.user" class="text-white">Welcome {{ authStore.user.name }}</p>
+      <div>
+        <RouterLink :to="{ name: 'register' }" class="nav-link">Register</RouterLink>
+      </div>
+    </nav>
+  </header>
+
+  <RouterView />
+</template>
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+
+
+
+isso está aparentemente correto...
+
+
+
+
+
+
+-> se tentamos mexer o value de essa token,
+
+ficamos com 1 erro.... o que é bom...
+
+
+
+
+
+ESTAMOS REGISTRANDO O USER COM SUCESSO, E ESTAMOS ATUALIZANDO 
+O USER STATE SEMPRE QUE HÁ 1 PAGE RELOAD, OU QUANDO O USER 
+VOLTA A NOSSO WEBSITE...
+
+
+
+
+
+
+
+
+
+
+
+
+--> CERTO... MAS O PROFESSOR APONTA QUE, AINDA ASSIM,
+  NÃO É NESSE LUGAR QUE QUEREMOS CHAMAR O '.getUser()'...
+
+
+
+
+
+
+--> VEREMOS ISSO MAIS TARDE, QUANDO FALARMOS SOBRE 'PROTECT THE ROUTES'...
+
+
+
+
+
+
+-> POR ENQUANTO, DEIXAMOS ASSIM..
+
+
+
+
+
+
+
+
+
+
+-> PARA O LOGIN E LOGOUT,
+
+ESCREVEMOS UMA NOVA VIEW,
+
+
+E FAZEMOS TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+<script setup>
+import { reactive } from 'vue';
+import useAuthStore from '@/stores/auth';
+
+const authStore = useAuthStore();
+const { authenticate } = useAuthStore();
+
+const formData = reactive({
+    email: '',
+    password: '',
+});
+
+</script>
+
+
+<template>
+    <main>
+        <h1 class="title">Log In</h1>
+        <form @submit.prevent="authenticate('login', formData)" class="w-1/2 mx-auto space-y-6">
+            <div>
+                <input type="email" placeholder="Email" v-model="formData.email" />
+                <p v-if="authStore.errors.email" class="error">{{ authStore.errors.email[0] }}</p>
+            </div>
+            <div>
+                <input type="password" placeholder="Password" v-model="formData.password" />
+                <p v-if="authStore.errors.password" class="error">{{ authStore.errors.password[0] }}</p>
+            </div>
+            <button class="primary-btn">Log In</button>
+        </form>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+CERTO... 
+
+
+É MAIS OU MENOS ISSO...
+
+
+
+
+
+
+
+
+E ASSIM:
+
+
+
+
+
+
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+import RegisterView from '../views/auth/RegisterView.vue';
+import LoginView from '@/views/auth/LoginView.vue';
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView,
+    },
+  ],
+});
+
+export default router;
+
+
+
+
+
+
+
+
+
+
+
+E ASSIM:
+
+
+
+
+
+
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router';
+import useAuthStore from './stores/auth';
+import { onMounted } from 'vue';
+
+const authStore = useAuthStore();
+
+onMounted(() => {
+  authStore.getUser(); // Check if user is authenticated.
+});
+
+</script>
+
+<template>
+  <header>
+    <nav>
+      <RouterLink :to="{ name: 'home' }" class="nav-link">Home</RouterLink>
+      <p v-if="authStore.user" class="text-white">Welcome {{ authStore.user.name }}</p>
+      <div>
+        <RouterLink :to="{ name: 'register' }" class="nav-link">Register</RouterLink>
+      </div>
+      <div>
+        <RouterLink :to="{ name: 'login' }" class="nav-link">Login</RouterLink>
+      </div>
+    </nav>
+  </header>
+
+  <RouterView />
+</template>
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+MAS ESTAMOS COM 1 PROBLEMA...
+
+
+
+
+
+
+
+
+
+
+
+-> SE ADICIONAMOS 1 EMAIL QUE EXISTE,
+
+  MAS COLOCAMOS 1 PASSWORD INCORRETO,
+
+
+
+  VAMOS SER REDIRECIONADOS A HOME PAGE,
+
+  MAS A 
+
+
+  TOKEN ESTARÁ UNDEFINED... QUER DIZER QUE É UM BUG...
+
+
+
+
+
+
+
+
+
+--> ISSO ESTÁ COM PROBLEMA POR CONTA DESTA LINHA:
+
+
+
+
+
+    // * Login or register user:
+    async authenticate(apiRoute, formData) {
+      const res = await fetch(`/api/${apiRoute}`, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (data.errors) {
+        console.log(data.errors);
+        this.errors = data.errors;
+      } else {
+        localStorage.setItem('token', data.token);
+        this.user = data.user;
+        this.router.push({ name: 'home' }); // * Use the router embedded into pinea, in app.js
+      }
+    },
+
+
+
+
+
+
+
+
+
+
+
+  ISSO ESTÁ ACONTECENDO POR CONTA DO 'if(data.errors)'...
+
+
+
+
+
+
+-> TEMOS QUE FAZER 1 MUDANÇA NO BACKEND,
+
+
+NESTA PARTE AQUI:
+
+
+
+
+
+
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users',
+            'password' => 'required'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return [
+                'errors' => [
+                    'email' => ['The provided credentials are incorrect.']
+                ]
+            ];
+            // return [
+            //     'message' => 'The provided credentials are incorrect.'
+            // ];
+        }
+
+        $token = $user->createToken($user->name);
+
+        return [
+            'user' => $user,
+            'token' => $token->plainTextToken
+        ];
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+-> O PROFESSOR DIZ QUE ESTAMOS FICANDO COM O ERROR POR CONTA DESTE TRECHO:
+
+
+
+            // return [
+            //     'message' => 'The provided credentials are incorrect.'
+            // ];
+
+
+
+
+
+
+
+  --> essa message, com esse value,
+
+
+  ESTÁ CAUSANDO O PROBLEMA...
+
+
+
+  PQ ESTAMOS CHECANDO 
+
+
+
+  NÃO POR uma message, e sim por 
+
+  'data.errors'...
+
+
+
+
+
+  --> PARA CONSERTAR ESSE PROBLEMA,
+
+  TEMOS QUE TROCAR O RETURN STATEMENT,
+
+  PARA QUE ELE FIQUE COM A ESTRUTURA 
+
+
+  DE 1 LARAVEL DEFAULT ERROR MESSAGE (basicamente esse bloco de código,
+  que comentamos para fora)...
+
+
+
+
+
+
+
+
+  TIPO ASSIM:
+
+
+
+
+
+
+
+      public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users',
+            'password' => 'required'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return [
+                'errors' => [
+                    'email' => ['The provided credentials are incorrect.']
+                ]
+            ];
+            // return [
+            //     'message' => 'The provided credentials are incorrect.'
+            // ];
+        }
+
+        $token = $user->createToken($user->name);
+
+        return [
+            'user' => $user,
+            'token' => $token->plainTextToken
+        ];
+    }
+
+
+
+
+
+
+
+
+
+
+  BASICAMENTE, 3 ARRAYS, 1 DENTRO DO OUTRO...
+
+
+
+
+
+
+
+  ok... com isso, deu certo...
+
+
+
+
+
+essa é a única mudança no nosso backend api, para esse app...
+
+
+
+
+
+
+
+
+
+
+--> OK... AGORA PODEMOS FAZER REGISTER E LOGIN ADEQUADAMENTE...
+
+
+
+
+
+
+O PRÓXIMO PASSO É FAZER O LOGOUT...
+
+
+
+
+
+
+
+
+-> DEVEMOS CRIAR O BUTTON PARA ISSO,  NO APP COMPONENT..
+
+
+
+
+
+-> TIPO ASSIM:
+
+
+
+
+
+
+      <div>
+        <form v-if="authStore.user" @submit.prevent="authStore.logout()">
+          <button @click="authStore.logout()">Logout</button>
+        </form>
+      </div>
+
+
+
+
+
+
+
+
+
+
+    AÍ PRECISAMOS DE 1 ACTION PARA ISSO,
+
+    TIPO ASSIM:
+
+
+    
+
+
+  
+
+
+
+
+
+
+
+
+
+    // * Log user out:
+    async logout() {
+      const res = await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.removeItem('token');
+        this.user = null;
+        this.errors = null;
+        this.router.push({ name: 'home' });
+      }
+    },
+
+
+
+
+
+
+
+
+
+  E FICOU TIPO ASSIM:
+
+
+
+
+
+
+
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router';
+import useAuthStore from './stores/auth';
+import { onMounted } from 'vue';
+
+const authStore = useAuthStore();
+
+onMounted(() => {
+  authStore.getUser(); // Check if user is authenticated.
+});
+
+</script>
+
+<template>
+  <header>
+    <nav>
+      <RouterLink :to="{ name: 'home' }" class="nav-link">Home</RouterLink>
+
+      <div>
+        <form v-if="authStore.user" @submit.prevent="authStore.logout()">
+          <button @click="authStore.logout()">Logout</button>
+        </form>
+      </div>
+      <div>
+        <RouterLink :to="{ name: 'register' }" class="nav-link">Register</RouterLink>
+      </div>
+      <div>
+        <RouterLink :to="{ name: 'login' }" class="nav-link">Login</RouterLink>
+      </div>
+    </nav>
+  </header>
+
+  <RouterView />
+</template>
+
+
+
+
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router';
+import useAuthStore from './stores/auth';
+import { onMounted } from 'vue';
+
+const authStore = useAuthStore();
+
+onMounted(() => {
+  authStore.getUser(); // Check if user is authenticated.
+});
+
+</script>
+
+<template>
+  <header>
+    <nav>
+      <RouterLink :to="{ name: 'home' }" class="nav-link">Home</RouterLink>
+
+      <div>
+        <form v-if="authStore.user" @submit.prevent="authStore.logout()">
+          <button @click="authStore.logout()">Logout</button>
+        </form>
+      </div>
+      <div v-if="!authStore.user">
+        <RouterLink :to="{ name: 'register' }" class="nav-link">Register</RouterLink>
+      </div>
+      <div v-if="!authStore.user">
+        <RouterLink :to="{ name: 'login' }" class="nav-link">Login</RouterLink>
+      </div>
+    </nav>
+  </header>
+
+  <RouterView />
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MAS AINDA PRECISAMOS PROTEGER AS ROUTES...
+
+
+
+
+
+
+EU JÁ COLOQUEI O NEGÓCIO PARA 
+OCULTAR OS LINKS,
+
+SEMPRE QUE O USER JÁ ESTIVER LOGGADO...
+
+
+
+
+
+
+ALGUMAS CLASSES....
+
+
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router';
+import useAuthStore from './stores/auth';
+import { onMounted } from 'vue';
+
+const authStore = useAuthStore();
+
+onMounted(() => {
+  authStore.getUser(); // Check if user is authenticated.
+});
+
+</script>
+
+<template>
+  <header>
+    <nav>
+      <RouterLink :to="{ name: 'home' }" class="nav-link">Home</RouterLink>
+
+      <div v-if="authStore.user" class="flex items-center space-x-6">
+        <p class="text-sm text-slate-300">
+          Welcome back {{ authStore.user.name }}!
+        </p>
+        <form @submit.prevent="authStore.logout()">
+          <button @click="authStore.logout()">Logout</button>
+        </form>
+      </div>
+      <div v-else class="space-x-6">
+        <RouterLink :to="{ name: 'register' }" class="nav-link">Register</RouterLink>
+        <RouterLink :to="{ name: 'login' }" class="nav-link">Login</RouterLink>
+      </div>
+    </nav>
+  </header>
+  <RouterView />
+</template>
+
+
+
+
+
+
+
+
+
+
+UM PROBLEMA, AQUI, É QUE AINDA PODEMOS ACESSAR ESSAS PAGES,
+
+MESMO QUE NÃO SEJA ADEQUADO... (precisamos de auth guards)...
+
+
+
+
+
+
+
+
+
+
+
+--> PODEMOS FAZER ISSO, POR MEIO DO VUE ROUTER...
+
+
+
+
+
+
+
+
+_> A HOME PAGE SEMPRE SERÁ PÚBLICA...
+
+
+
+
+
+
+
+
+MAS AS ROUTES DE 'register' e 'login' 
+
+
+DEVERÃO SER PROTEGIDAS...
+
+
+
+
+
+
+VAMOS ATÉ o router>index.js...
+
+
+
+
+
+
+-> COLOCAMOS PROPERTIES DE 'meta',
+
+
+e deixamos guest:true,
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+import RegisterView from '../views/auth/RegisterView.vue';
+import LoginView from '@/views/auth/LoginView.vue';
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
+      meta: { guest: true },
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView,
+      meta: { guest: true },
+    },
+  ],
+});
+
+export default router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MAS ANTES DE EXPORTAR O ROUTER,
+
+QUEREMOS PROTEGER ESSAS ROUTES,
+
+com 
+
+
+'router.beforeEach()'...
+
+
+
+
+
+ISSO VAI RODAR ANTES DE CADA NAVIGATION....
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+import RegisterView from '../views/auth/RegisterView.vue';
+import LoginView from '@/views/auth/LoginView.vue';
+import useAuthStore from '@/stores/auth';
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
+      meta: { guest: true },
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView,
+      meta: { guest: true },
+    },
+  ],
+});
+
+// Check if user is authenticated, and show the proper route, based on that state:
+router.beforeEach(async (to, from) => {
+  const authStore = useAuthStore();
+
+  await authStore.getUser();
+
+  if (authStore.user && to.meta.guest) {
+    return { name: 'home' };
+  }
+});
+
+export default router;
+
+
+
+
+
+certo...
+
+
+
+
+
+
+
+
+
+
+
+ESTA É A PARTE IMPORTANTE:
+
+
+
+
+
+
+// Check if user is authenticated, and show the proper route, based on that state:
+router.beforeEach(async (to, from) => {
+  const authStore = useAuthStore();
+
+  await authStore.getUser();
+
+  if (authStore.user && to.meta.guest) {
+    return { name: 'home' };
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OK... PRECISAMOS FAZER AS MESMAS ROUTES QUE DEVEM SER PROTEGIDAS 
+
+CONTRA GUESTS...
+
+
+
+
+
+
+
+--> POR ISSO O PROFESSOR CRIA UMA SAMPLE ROUTE, ROUTE QUE 
+DEVE SER PROTEGIDA COM AUTH...
+
+
+
+
+
+
+
+-> COLOCAMOS UMA ROUTE PARA 'CREATE A POST',
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router';
+import useAuthStore from './stores/auth';
+import { onMounted } from 'vue';
+
+const authStore = useAuthStore();
+
+onMounted(() => {
+  authStore.getUser(); // Check if user is authenticated.
+});
+
+</script>
+
+<template>
+  <header>
+    <nav>
+      <RouterLink :to="{ name: 'home' }" class="nav-link">Home</RouterLink>
+
+      <div v-if="authStore.user" class="flex items-center space-x-6">
+        <p class="text-sm text-slate-300">
+          Welcome back {{ authStore.user.name }}!
+        </p>
+        <RouterLink :to="{ name: 'create' }" class="nav-link">New Post</RouterLink>
+        <form @submit.prevent="authStore.logout()">
+          <button class="text-white" @click="authStore.logout()">Logout</button>
+        </form>
+      </div>
+      <div v-else class="space-x-6">
+        <RouterLink :to="{ name: 'register' }" class="nav-link">Register</RouterLink>
+        <RouterLink :to="{ name: 'login' }" class="nav-link">Login</RouterLink>
+      </div>
+    </nav>
+  </header>
+  <RouterView />
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+aí criamos UM NOVO FOLDER EM 'views',
+
+DE NOME 
+
+'Posts'...
+
+
+
+
+
+
+
+--> DENTRO DALI, COLOCAMOS UM NOVO DOCUMENTO,
+
+
+DE NOME 'CreateView.vue'...
+
+
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+
+
+<script setup></script>
+
+<template>
+    <main>
+        <h1 class="title">Create a new Post</h1>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+AÍ CRIAMOS ESSA ROUTE, em routes>index.js:
+
+
+
+
+
+
+
+
+
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+import RegisterView from '../views/auth/RegisterView.vue';
+import LoginView from '@/views/auth/LoginView.vue';
+import CreateView from '@/views/Posts/CreateView.vue';
+import useAuthStore from '@/stores/auth';
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
+      meta: { guest: true },
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView,
+      meta: { guest: true },
+    },
+    {
+      path: '/create',
+      name: 'create',
+      component: CreateView,
+    },
+  ],
+});
+
+// Check if user is authenticated, and show the proper route, based on that state:
+router.beforeEach(async (to, from) => {
+  const authStore = useAuthStore();
+
+  await authStore.getUser();
+
+  if (authStore.user && to.meta.guest) {
+    return { name: 'home' };
+  }
+});
+
+export default router;
+
+
+
+
+
+
+
+
+
+
+
+OK... AGORA TEMOS ESSA NOVA ROUTE...
+
+
+
+
+
+
+
+
+
+
+temos que proteger essa route, com o state do user,
+
+
+
+
+com o 'meta'...
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+import RegisterView from '../views/auth/RegisterView.vue';
+import LoginView from '@/views/auth/LoginView.vue';
+import CreateView from '@/views/Posts/CreateView.vue';
+import useAuthStore from '@/stores/auth';
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
+      meta: { guest: true },
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView,
+      meta: { guest: true },
+    },
+    {
+      path: '/create',
+      name: 'create',
+      component: CreateView,
+      meta: { auth: true },
+    },
+  ],
+});
+
+// Check if user is authenticated, and show the proper route, based on that state:
+router.beforeEach(async (to, from) => {
+  const authStore = useAuthStore();
+
+  await authStore.getUser();
+
+  if (authStore.user && to.meta.guest) {
+    return { name: 'home' };
+  }
+});
+
+export default router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+COM ISSO, QUEREMOS FAZER A MESMA COISA, MAS 'BACKWARDS'..
+
+
+
+
+
+--> colocamos um novo if statement,
+
+checando pelo contrário...
+
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+
+
+
+
+
+// Check if user is authenticated, and show the proper route, based on that state:
+router.beforeEach(async (to, from) => {
+  const authStore = useAuthStore();
+
+  await authStore.getUser();
+
+  if (authStore.user && to.meta.guest) {
+    return { name: 'home' };
+  }
+
+  if (!authStore.user && to.meta.auth) {
+    return { name: 'login' };
+  }
+});
+
+
+
+
+
+
+
+
+OK.... SE O USER TENTAR ACESSAR QUANDO A ROUTE DEMANDAR AUTH,
+E ELE ESTIVER UNAUTH,
+
+ELE SERÁ REDIRECIONADO PARA A PAGE DE 'login'...
+
+
+
+
+
+
+
+
+é assim que podemos adicionar guards, ao nosso router...
+
+
+
+
+
+
+
+
+
+
+--> O PROFESSOR ENTÃO TIRA O call de '''
+
+
+onMounted(() => {
+  authStore.getUser(); // Check if user is authenticated.
+});
+
+
+
+'',
+
+
+ISSO PQ JÁ ESTAMOS CHAMANDO ISSO, DE DENTRO DO 'index.js',
+
+DO ROUTER...
+
+
+
+
+
+
+
+acabamos com a parte do auth..
+
+
+
+
+
+
+
+-> VEREMOS A PARTE DO CRUD DO APP, 
+
+NA PRÓXIMA PARTE...
