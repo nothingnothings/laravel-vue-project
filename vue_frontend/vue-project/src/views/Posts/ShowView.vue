@@ -1,9 +1,10 @@
 <script setup>
 
-import { onMounted, reactive } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
 import { usePostsStore } from '@/stores/posts';
 import useAuthStore from '@/stores/auth';
+import { useRoute } from 'vue-router';
 
 const route = useRoute(); // * get the vue router, to get the segment, in the url.
 

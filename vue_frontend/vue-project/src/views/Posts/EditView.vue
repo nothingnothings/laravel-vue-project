@@ -1,6 +1,6 @@
 <script setup>
 
-import { reactive } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
 import { useRoute, useRouter } from 'vue-router';
 
@@ -26,7 +26,7 @@ const post = ref(null);
 onMounted(async () => {
     post.value = await getSinglePost(route.params.id);
 
-    if (authStore.user.value.id !== post.value.user_id) {
+    if (authStore.user.id !== post.value.user_id) {
         router.push({ name: 'home' });
     } else {
         formData.title = post.value.title;
