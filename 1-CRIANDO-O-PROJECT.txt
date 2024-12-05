@@ -1,0 +1,3607 @@
+
+
+
+
+
+
+
+
+
+
+
+
+rodei laravel new vue_laravel_project 
+
+
+
+
+
+
+, Para criar 1 novo projeto laravel..
+
+
+
+
+
+
+
+-> depois, ajeitei o .env, para usar o banco dockerizado...
+
+
+
+
+
+
+
+
+--> depois, rodei as migrations default da database... 
+
+    mas ainda não sei se o app vai usar a table de 'users',
+    para a authentication....
+
+
+
+
+
+
+php artisan migrate
+
+
+
+
+
+--> O PROFESSOR ENTÃO CRIA 
+
+
+    UM APP vue,
+
+
+    com 
+
+
+    'npm create vue@latest'...
+
+
+
+
+
+
+
+certo... mas a questão é:
+
+ONDE rodar isso aí? folder separado?
+
+
+provavelmente...
+
+
+
+
+
+
+
+
+
+-> não queremos typescript,
+
+nem jsx...
+
+
+--> queremos vue router, 
+    e queremos pinia (para o state management)..
+
+
+
+
+-> colocamos no para todo o resto...
+
+
+
+
+
+
+
+
+
+AÍ RODAMOS ASSIM:
+
+
+
+
+
+PS D:\LARAVEL-VUE-PROJECT\vue_frontend> npm create vue@latest
+Need to install the following packages:
+create-vue@3.12.2
+Ok to proceed? (y) y
+
+Vue.js - The Progressive JavaScript Framework
+
+√ Project name: ... vue-project
+√ Add TypeScript? ... No / Yes
+√ Add JSX Support? ... No / Yes
+√ Add Vue Router for Single Page Application development? ... No / Yes
+√ Add Pinia for state management? ... No / Yes
+√ Add Vitest for Unit Testing? ... No / Yes
+√ Add an End-to-End Testing Solution? » No
+√ Add ESLint for code quality? » No
+
+Scaffolding project in D:\LARAVEL-VUE-PROJECT\vue_frontend\vue-project...
+
+Done. Now run:
+
+  cd vue-project
+  npm install
+  npm run dev
+
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO... ENTRAMOS NO PROJETO,
+
+e aí instalamos o tailwind...
+
+
+
+
+
+
+
+
+PARA O TAILWIND,
+
+
+
+INSTALAMOS A VERSÃO DO VITE...
+
+
+
+
+
+TIPO ASSIM:
+
+
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+
+
+
+
+
+
+
+
+
+COM ISSO, PODEMOS ABRIR NOSSO PROJECT, NO VSCODE...
+
+
+
+
+
+
+
+
+
+
+-> TEMOS O NOSSO VUE APP....
+
+
+
+
+
+
+
+PROFESSOR ESTÁ USANDO 'vetur'...
+
+
+
+
+
+
+
+
+
+
+
+--> VOLTAMOS AO PROJECT...
+
+
+
+
+
+
+
+
+
+
+
+COMEÇAMOS COM O CLEANUP,
+
+DELETAR TUDO QUE NÃO É NECESSÁRIO...
+
+
+
+
+
+
+
+
+
+
+EM SRC,
+
+
+
+DELETAMOS TUDO DOS ASSETS, EXCETO 'main.css'...
+
+
+
+
+
+
+
+
+
+
+
+DELETAMOS TUDO DO 'main.css',
+
+
+mais tarde vamos colocar nosso próprio css...
+
+
+
+
+
+
+
+
+
+
+
+
+--> EM COMPONENTS,
+
+    DELETAMOS TODOS OS FOLDERS NO INTERIOR (nao vamos usar components)...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--> EM 'router',
+
+
+
+    a pasta,
+
+    temos o 'index.js',
+
+
+
+
+    em que temos o VUE ROUTER...
+
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+    },
+    {
+      path: '/about',
+      name: 'about',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/AboutView.vue'),
+    },
+  ],
+})
+
+export default router
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+POR DEFAULT, TEMOS ESSAS 2 ROUTES,
+
+
+MAS NÃO PRECISAMOS DA ROUTE DE 'about'...
+
+
+
+
+
+
+
+
+Ex:
+
+
+
+
+
+
+
+
+
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+    },
+  ],
+});
+
+export default router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO... FICAMOS COM APENAS ESSA ROUTE...
+
+
+
+
+
+
+
+
+
+
+-> NO FOLDER DE 'stores',
+
+
+temos o store de 'counter.js',
+
+
+que é o nossos state management...
+
+
+
+
+
+
+
+
+--> PODEMOS DELETAR O 'counter.js',
+
+
+PQ TEREMOS NOSSO PRÓPRIO STORE...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TEMOS 2 VIEWS,
+
+
+'HomeView.vue' 
+
+e 'AboutView.vue'...
+
+
+
+
+
+
+FICAMOS APENAS COM O 'HomeView.vue',
+
+
+
+COM ELE COM UM H1,
+
+tipo assim:
+
+
+
+
+
+
+<script setup>
+// import TheWelcome from '../components/TheWelcome.vue'
+</script>
+
+<template>
+  <main>
+    <!-- <TheWelcome /> -->
+    <h1 class="title">Latest Posts</h1>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+MAIS TARDE, VAMOS ADICIONAR OS POSTS BEM ALI...
+
+
+
+
+
+
+
+
+
+
+
+-> COM ISSO, FICAMOS APENAS COM ESSA VIEW....
+
+
+
+
+
+
+
+
+
+
+
+
+
+--> AÍ, LÁ EM 'App.vue',
+
+
+
+
+TEMOS ESTE CÓDIGO:
+
+
+
+
+
+
+
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router'
+import HelloWorld from './components/HelloWorld.vue'
+</script>
+
+<template>
+  <header>
+    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+
+    <div class="wrapper">
+      <HelloWorld msg="You did it!" />
+
+      <nav>
+        <RouterLink to="/">Home</RouterLink>
+        <RouterLink to="/about">About</RouterLink>
+      </nav>
+    </div>
+  </header>
+
+  <RouterView />
+</template>
+
+<style scoped>
+header {
+  line-height: 1.5;
+  max-height: 100vh;
+}
+
+.logo {
+  display: block;
+  margin: 0 auto 2rem;
+}
+
+nav {
+  width: 100%;
+  font-size: 12px;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+nav a.router-link-exact-active {
+  color: var(--color-text);
+}
+
+nav a.router-link-exact-active:hover {
+  background-color: transparent;
+}
+
+nav a {
+  display: inline-block;
+  padding: 0 1rem;
+  border-left: 1px solid var(--color-border);
+}
+
+nav a:first-of-type {
+  border: 0;
+}
+
+@media (min-width: 1024px) {
+  header {
+    display: flex;
+    place-items: center;
+    padding-right: calc(var(--section-gap) / 2);
+  }
+
+  .logo {
+    margin: 0 2rem 0 0;
+  }
+
+  header .wrapper {
+    display: flex;
+    place-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  nav {
+    text-align: left;
+    margin-left: -1rem;
+    font-size: 1rem;
+
+    padding: 1rem 0;
+    margin-top: 1rem;
+  }
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+VAMOS DELETAR ESSE COMPONENT DE HELLOWORLD,
+
+
+E VAMOS DELETAR UM MONTE DE COISAS...
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router';
+// import HelloWorld from './components/HelloWorld.vue'
+</script>
+
+<template>
+  <header>
+    <nav>
+      <RouterLink to="/">Home</RouterLink>
+    </nav>
+  </header>
+
+  <RouterView />
+</template>
+
+<style scoped>
+header {
+  line-height: 1.5;
+  max-height: 100vh;
+}
+
+.logo {
+  display: block;
+  margin: 0 auto 2rem;
+}
+
+nav {
+  width: 100%;
+  font-size: 12px;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+nav a.router-link-exact-active {
+  color: var(--color-text);
+}
+
+nav a.router-link-exact-active:hover {
+  background-color: transparent;
+}
+
+nav a {
+  display: inline-block;
+  padding: 0 1rem;
+  border-left: 1px solid var(--color-border);
+}
+
+nav a:first-of-type {
+  border: 0;
+}
+
+@media (min-width: 1024px) {
+  header {
+    display: flex;
+    place-items: center;
+    padding-right: calc(var(--section-gap) / 2);
+  }
+
+  .logo {
+    margin: 0 2rem 0 0;
+  }
+
+  header .wrapper {
+    display: flex;
+    place-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  nav {
+    text-align: left;
+    margin-left: -1rem;
+    font-size: 1rem;
+
+    padding: 1rem 0;
+    margin-top: 1rem;
+  }
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TEMOS TAMBÉM A 'RouterView',
+
+
+
+que é 
+
+
+''A PLACEHOLDER FOR THE CHILDREN COMPONENTS OF THIS APP''...
+
+
+
+
+
+PODEMOS NOS LIVRAR DE TODOS OS STYLES, TAMBÉM...
+
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router';
+// import HelloWorld from './components/HelloWorld.vue'
+</script>
+
+<template>
+  <header>
+    <nav>
+      <RouterLink to="/">Home</RouterLink>
+    </nav>
+  </header>
+
+  <RouterView />
+</template>
+
+
+
+
+
+
+
+
+
+
+
+COM ISSO, NOSSO APP COMPONENT 
+
+FICA COMPOSTO POR APENAS:
+
+
+1) O HEADER 
+
+
+2) O COMPONENT 'RouterView'...
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+MAIS TARDE, EM 'main.js',
+
+
+
+
+TEMOS ISTO:
+
+
+
+
+
+
+
+import './assets/main.css'
+
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+
+import App from './App.vue'
+import router from './router'
+
+const app = createApp(App)
+
+app.use(createPinia())
+app.use(router)
+
+app.mount('#app')
+
+
+
+
+
+
+
+
+
+
+
+-> O CSS ESTÁ APONTANDO PARA O FOLDER CORRETO,
+
+
+por isso './assets/main.css'..
+
+
+
+
+
+
+
+
+
+--> DEPOIS DISSO, QUEREMOS COLOCAR O TAILWIND CSS NO NOSSO PROJETO,
+
+
+NAQUELE 
+    ARQUIVO 'main.css'...
+
+
+
+
+
+-> QUEREMOS CONFIGURAR OS DIRECTORIES QUE VÃO TER CSS,
+
+    lá em 'tailwind.config.js'...
+
+
+
+
+
+
+
+
+
+
+
+
+-> AÍ VAMOS ATÉ ESSA URL,
+
+    DOS DOCS DO TAILWIND:
+
+
+    https://tailwindcss.com/docs/guides/vite#vue
+
+
+
+
+
+
+
+
+AÍ PEGAMOS A CONFIGURATION 
+
+
+
+do 'tailwind.config.js':
+
+
+
+
+  content: [
+    "./index.html",
+    "./src/**/*.{vue,js}",
+  ],
+
+
+
+
+
+
+AÍ COLAMOS ISSO NO NOSSO tailwind.config.js...
+
+
+
+
+
+
+
+CERTO... 
+
+
+
+ISSO FEITO,
+
+
+PRECISAMOS COLOCAR AS TAILWIND DIRECTIVES NO PROJECT...
+
+
+
+
+
+MAS EM VEZ DE USAR 
+
+
+''
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+'',
+
+
+
+
+VAMOS USAR AS DIRECTIVES CUSTOM DO PROFESSOR,
+
+QUE SÃO ESTAS:
+
+
+
+
+
+
+/* Please note this document will be updated as time goes by. Thank you */
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        font-family: "Poppins", sans-serif;
+    }
+}
+
+@layer components {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="search"],
+    input[type="tel"],
+    input[type="url"], textarea {
+        @apply block w-full rounded-md border-0 p-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm bg-white;
+    }
+    label {
+        @apply block text-sm font-medium leading-6 text-slate-900 first-letter:capitalize;
+    }
+    header {
+        @apply bg-slate-800 shadow-md;
+    }
+    nav {
+        @apply p-5 max-w-screen-lg mx-auto flex items-center justify-between;
+    }
+    main {
+        @apply max-w-screen-lg mx-auto;
+    }
+    .primary-btn {
+        @apply flex w-full justify-center rounded-md bg-blue-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-slate-400 disabled:cursor-wait;
+    }
+    .text-link {
+        @apply font-semibold text-blue-500 hover:text-blue-600;
+    }
+    .nav-link {
+        @apply text-slate-200 hover:bg-slate-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium;
+    }
+    .title {
+        @apply my-6 text-center text-3xl font-bold leading-9 text-slate-900;
+    }
+    .error {
+        @apply text-xs text-red-500 mt-1;
+    }
+    table {
+        @apply w-full text-sm text-left rounded-md shadow-lg overflow-hidden mb-6 table-auto bg-white;
+    }
+    thead {
+        @apply text-xs uppercase font-medium border-b border-slate-100 text-slate-600;
+    }
+    tbody tr {
+        @apply hover:bg-slate-100 w-full p-0;
+    }
+    th {
+        @apply px-6 py-4;
+    }
+    td {
+        @apply px-6 py-4 border-b border-slate-100;
+    }
+    .avatar {
+        @apply w-8 h-8 rounded-full overflow-hidden object-center object-cover;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+
+
+AÍ SALVAMOS...
+
+
+
+
+
+
+
+FICAMOS COM O INITIAL CONFIG FEITO...
+
+
+
+
+
+
+
+
+
+PODEMOS RODAR npm run dev,
+
+para rodar nosso projeto, 
+
+
+
+em localhost:5173...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+vamos até 'App.vue',
+
+
+
+E AÍ ESCREVEMOS A CLASS DE 'nav-link'...
+
+TIPO ASSIM:
+
+
+
+
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router';
+// import HelloWorld from './components/HelloWorld.vue'
+</script>
+
+<template>
+  <header>
+    <nav>
+      <RouterLink to="/" class="nav-link">Home</RouterLink>
+    </nav>
+  </header>
+
+  <RouterView />
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+NESSE VÍDEO, VEREMOS O AUTHENTICATION SYSTEM...
+
+
+
+
+
+
+
+NO PRÓXIMO VIDEO, VEREMOS AS CRUD ACTIONS DE NOSSO APP...
+
+
+
+
+
+
+
+
+
+
+--> A PRIMEIRA 
+
+COISA QUE O PROFESSOR QUER FAZER É 
+
+SETTAR O 'VITE'
+
+PARA AS NOSSAS API CALLS... ELE QUER FAZER ISSO 
+
+JUSTAMENTE PARA QUE NÃO TENHAMOS QUE REPETIR UM MONTE DE CÓDIGO...
+
+
+
+
+
+
+
+
+
+
+
+
+
+--> PARA ISSO, VAMOS ATÉ 'vite.config.js',
+
+
+
+
+EM QUE TEMOS ESTE CÓDIGO:
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { fileURLToPath, URL } from 'node:url'
+
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import vueDevTools from 'vite-plugin-vue-devtools'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [
+    vue(),
+    vueDevTools(),
+  ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    },
+  },
+})
+
+
+
+
+
+
+
+
+
+
+COMO VC PODE VER, JÁ TEMOS ESSES 2 PLUGINS DE VUE...
+
+
+
+
+
+
+E TAMBÉM O RESOLVE PARA o '@'...
+
+
+
+
+
+
+--> mas queremos adicionar uma nova key,
+
+
+    PARA A CONFIGURATION DO SERVER...
+
+
+
+
+
+será 
+
+
+'server: {
+
+}',
+
+
+
+
+
+E AÍ, DENTRO DELE,
+
+
+vamos escrever 
+
+'proxy:',
+
+
+E DEFINIR COMO SENDO 1 OBJECT...
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+
+
+import { fileURLToPath, URL } from 'node:url';
+
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import vueDevTools from 'vite-plugin-vue-devtools';
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [vue(), vueDevTools()],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+  server: {
+    proxy: {},
+  },
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+COLOCAMOS UMA DAS KEYS como '/api',
+
+
+
+
+
+QUE SERÁ BASICAMENTE O ENDPOINT QUE VAMOS TARGETTAR,
+
+NESSE NOSSO FRONTEND...
+
+
+
+
+
+
+
+COMO VALUE DE '/api',
+
+
+
+QUEREMOS DEIXAR OUTRO OBJECT... DENTRO DESSE OBJECT,
+
+DEVEMOS SETTAR:
+
+1) THE TARGET 
+
+2) THE HEADERS 
+
+3) WHATEVER IS RELATED TO OUR API...
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+
+  server: {
+    proxy: {
+      '/api': {
+        target: 
+      },
+    },
+  },
+
+
+
+
+
+
+
+
+
+
+
+PARA O 'target',
+
+
+QUEREMOS DEIXAR A URL DE NOSSA API...
+
+
+
+
+
+
+
+
+
+
+
+--> para ver qual é a url de nossa API,
+
+
+do laravel,
+
+
+
+
+devemos visualizar com o php artisan serve,
+
+ou, no caso do herd,
+
+
+
+será 
+
+
+''http://laravel_vue_project.test''
+
+
+
+
+
+
+
+
+podemos colocar essa url no target do vite.config.js...
+
+
+
+
+
+
+
+
+também deixamos 
+
+        changeOrigin: true, 
+
+    
+e
+
+
+TAMBÉM SETTUPAMOS OS HEADERS...
+
+
+
+
+
+ISSO PQ TEREMOS DEFAULT HEADRS... TODOS NOSSOS REQUESTS TERÃO 
+DEFAULT HEADERS... 
+
+
+
+
+
+Ex:
+
+
+
+
+
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://laravel_vue_project.test',
+        changeOrigin: true,
+        headers: {
+          Accept: 'application/json',
+        }
+      },
+    },
+  },
+
+
+
+
+
+
+
+  precisamos de 'Accept'
+
+  e de 'Content-Type'...
+
+
+
+
+
+
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+
+
+
+
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://laravel_vue_project.test',
+        changeOrigin: true,
+        headers: {
+          'Accept ': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      },
+    },
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OK, MAS PQ FIZEMOS TUDO ISSO?
+
+
+
+
+
+
+
+
+É PQ, AGORA, SEMPRE QUE QUISERMOS CHAMAR NOSSA API 
+
+do laravel,
+
+nesse frontend,
+
+
+
+bastará chamar 
+
+
+
+'/api/<your_route>',
+
+
+
+E AÍ PASSAR O VERB (GET, POST, PUT, DELETE)...
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+
+AGORA QUEREMOS COMEÇAR A BUILDAR NOSSO APP...
+
+
+
+
+
+
+
+QUEREMOS COMEÇAR COM A PAGE DE 'register',
+
+E COM TODA A FUNCTIONALITY DISSO...
+
+
+
+
+
+
+
+
+
+
+-> ASSIM QUE A REGISTER FUNCTION 
+    ESTIVER FUNCIONANDO,
+
+    o resto do app vai ser bem fácil... pq 
+
+    aí será copy e paste...
+
+
+
+
+
+
+
+
+
+
+OK...
+
+
+
+
+
+
+
+
+
+
+
+
+
+1o PASSO --> CRIAR 1 VIEW PARA A PAGE DE REGISTER...
+
+
+
+
+
+
+
+--> DENTRO DO FOLDER DE 'views',
+
+    criamos 1 folder chamado de 'auth'...
+
+
+
+
+
+
+
+
+--> AÍ TEREMOS RegisterView.vue...
+
+
+
+
+
+
+
+
+
+
+
+
+
+COMEÇAMOS COM ISTO:
+
+
+
+
+
+
+
+
+
+<script setup></script>
+
+<template>
+  <main>
+    <h1 class="title">Register a new Account</h1>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+ISSO FEITO,
+
+
+AGORA TEMOS 1 COMPONENT... AGORA QUEREMOS 
+
+
+CRIAR 1 LINK E 1 ROUTE PARA ELE..
+
+
+
+
+
+
+
+
+--> PARA CRIAR O LINK,
+
+
+FAZEMOS ASSIM, LÁ NO 'App.vue':
+
+
+
+
+
+
+
+
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router';
+// import HelloWorld from './components/HelloWorld.vue'
+</script>
+
+<template>
+  <header>
+    <nav>
+      <RouterLink to="/" class="nav-link">Home</RouterLink>
+    </nav>
+
+    <div>
+      <RouterLink to="/register" class="nav-link">Register</RouterLink>
+    </div>
+  </header>
+
+  <RouterView />
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+AGORA SÓ PRECISAMOS DEFINIR A ROUTE PARA ISSO...
+
+
+
+
+vamos até o folder de router,
+
+
+em index.js,
+
+
+e escrevmos assim:
+
+
+
+
+
+
+
+
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+import RegisterView from '../views/auth/RegisterView.vue';
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
+    },
+  ],
+});
+
+export default router;
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OK...
+
+
+
+''MAS PQ ESTAMOS USANDO NOMES, AQUI...''
+
+
+
+
+estamos colocando 'name' nas routes pq 
+
+
+
+ISSO PODE COME IN HANDY SE QUISERMOS USAR 
+
+OS NAMES EM 'to'... (é uma better practice, do que usar só o hardcode de coisas como '/' e '/register')...
+
+
+
+
+
+
+
+
+
+
+
+POR ISSO VAMOS ESCREVER TIPO ASSIM:
+
+
+
+
+
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router';
+// import HelloWorld from './components/HelloWorld.vue'
+</script>
+
+<template>
+  <header>
+    <nav>
+      <RouterLink :to="{ name: 'home' }" class="nav-link">Home</RouterLink>
+      <div>
+        <RouterLink :to="{ name: 'register' }" class="nav-link">Register</RouterLink>
+      </div>
+    </nav>
+  </header>
+
+  <RouterView />
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+ok...
+
+
+
+
+
+
+FUNCIONA DA MESMA FORMA, MAS AGORA MAIS ESTILIZADO...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--> LÁ NO COMPONENT DE REGISTER,
+
+QUEREMOS CRIAR A FORM,
+
+E AÍ FAZER 1 CALL à NOSSA API...
+
+
+
+
+
+ESCREVEMOS TIPO ASSIM:
+
+
+
+
+
+
+
+<script setup></script>
+
+<template>
+  <main>
+    <h1 class="title">Register a new Account</h1>
+    <form action="" class="w-1/2 mx-auto space-y-6">
+      <div>
+        <input type="text" placeholder="Name" name="name" />
+      </div>
+      <div>
+        <input type="email" placeholder="Email" name="email" />
+      </div>
+      <div>
+        <input type="password" placeholder="Password" name="password" />
+      </div>
+      <div>
+        <input type="password" placeholder="Confirm Password" name="confirm_password" />
+      </div>
+      <button class="primary-btn">Register</button>
+    </form>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+OK... BEM SIMPLES... 4 INPUT FIELDS, E 1 BUTTON...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+O PRÓXIMO PASSO É PEGAR A DATA DA FORM...
+
+
+
+
+
+
+
+--> PARA ISSO, VAMOS USAR REACTIVE DATA,
+
+E A DIRECTIVE DE 'v-model', nos nossos input fields...
+
+
+
+
+
+
+
+
+-> PARA ISSO, ESCREVEMOS TIPO ASSIM:
+
+
+<script setup></script>
+
+import { reactive } from 'vue';
+
+const formData = reactive({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+});
+
+<template>
+  <main>
+    <h1 class="title">Register a new Account</h1>
+    <form action="" class="w-1/2 mx-auto space-y-6">
+      <div>
+        <input type="text" placeholder="Name" name="name" />
+      </div>
+      <div>
+        <input type="email" placeholder="Email" name="email" />
+      </div>
+      <div>
+        <input type="password" placeholder="Password" name="password" />
+      </div>
+      <div>
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          name="confirm_password"
+        />
+      </div>
+      <button class="primary-btn">Register</button>
+    </form>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+A API VAI EXPECT 
+
+
+ESSES FIELDS, ESSES NOMES DOS FIELDS,
+
+NO BODY DO REQUEST...
+
+
+
+
+
+
+EX:
+
+
+
+    <form @submit.prevent="console.log(formData)" class="w-1/2 mx-auto space-y-6">
+
+
+
+
+
+
+
+queremos prevenir o default de essa form,
+
+e aí fazer o console.log da formData...
+
+
+
+
+
+
+
+
+
+
+
+MAS É CLARO QUE AINDA PRECISAMOS USAR 
+A DIRECTIVE DE 'v-model',
+PARA VINCULAR 
+
+
+
+AQUELE OBJECT, CADA PROPERTY DELE, A CADA INPUT...
+
+
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+
+
+
+<script setup></script>
+
+import { reactive } from 'vue'; const formData = reactive({ name: '', email: '',
+password: '', password_confirmation: '', });
+
+<template>
+  <main>
+    <h1 class="title">Register a new Account</h1>
+    <form
+      @submit.prevent="console.log(formData)"
+      class="w-1/2 mx-auto space-y-6"
+    >
+      <div>
+        <input type="text" placeholder="Name" v-model="formData.name" />
+      </div>
+      <div>
+        <input type="email" placeholder="Email" v-model="formData.email" />
+      </div>
+      <div>
+        <input
+          type="password"
+          placeholder="Password"
+          v-model="formData.password"
+        />
+      </div>
+      <div>
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          name="confirm_password"
+          v-model="formData.password_confirmation"
+        />
+      </div>
+      <button class="primary-btn">Register</button>
+    </form>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+
+
+agora quando essa form é submittada, a data é console.loggada...
+
+
+
+
+
+
+
+--> A PRÓXIMA ETAPA É CHAMAR NOSSA API E SUBMITTAR  
+    ESSA DATA AO BACKEND,
+
+    AO BACKEND LARAVEL API,
+
+
+    E AÍ VER SE A DATA ESTÁ CORRETA...
+
+
+    SE NÃO ESTIVER CORRETA,
+
+    QUEREMOS:
+
+
+    1) GET BACK THE ERRORS, TO SHOW THEM TO THE USERS 
+
+
+
+    2) SE ESTIVER CORRETA, QUEREMOS REGISTRAR OS USERS E CONTINUAR COM O APP..
+
+
+
+
+
+
+
+--> PODERÍAMOS DEFINIR A LÓGICA DE REGISTER, A FUNCTION,
+
+    DENTRO DO COMPONENT EM SI,
+
+
+
+    MAS O PROFESSOR QUER USAR O 'pinia',
+
+    state manager,
+
+
+    para o state management... é por isso que toda a funcionalidade 
+
+
+
+    vai ir lá no store do pinnia...
+
+
+
+
+--> temos o folder de 'stores'...
+
+
+
+
+--> CRIAMOS UM documento/slice de 'auth.js'...
+
+
+
+
+
+
+
+
+
+
+-> CERTO... 
+
+
+QUER DIZER QUE ESSE É UM STORE DE 'auth.js'...
+
+
+
+
+
+
+
+
+
+--> PINIA...
+
+
+
+
+
+
+
+--> ELE DEFINE  UM STORE...
+
+
+
+
+
+
+
+
+AÍ PODEMOS USAR GLOBAL STATE,
+
+USANDO O PINIA...
+
+
+
+vamos definir 1 store, e aí 
+
+vamos exportar esse store, para que ele possa ser usado em outras partes  do app...
+
+
+
+
+
+
+
+
+--> PARA ISSO,
+
+TEMOS 1 CÓDIGO TIPO 
+
+
+
+
+
+import { defineStore } from 'pinia';
+
+
+export const useAlertsStore('alerts', {});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OK... TEMOS 2 MANEIRAS DE 
+    CRIAR STORES...
+
+
+
+
+
+
+
+
+--> SÃO OS:
+
+1) OPTIONS STORE 
+
+
+
+2) SETUP STORE...
+
+
+
+
+
+
+
+
+
+
+
+OPTIONS STORE --> É PARECIDO COM A 'OPTIONS API' 
+
+
+                    DO VUEJS...
+
+                
+
+
+                SETUP STORE --> É PARECIDO COM A COMPOSITION API, DO VUEJS...
+
+
+
+
+
+
+
+
+
+
+--> MAS SE VAMOS USAR 1 SETUP STORE,
+
+
+    PRECISAMOS PASSAR 1 FUNCTION  COMO SEGUNDO ARGUMENTO DE 'defineStore',
+    e aí 
+    precisamos definir nossas ref variables, computed, etc, na nossa store,
+
+    usando vueJs,
+
+    e aí devemos retornar tudo isso, no final, em 1 object...
+
+
+
+
+    -> o professor n gosta disso,
+        pq ele sempre esquece de retornar alguma coisa,
+        ou com vários imports desnecessários...
+
+
+
+
+
+
+
+
+
+--> É POR ISSO QUE O PROFESSOR PREFERE USAR O 'optionsStore'...
+
+    é mais familiar...
+
+
+
+
+
+    ELE TEM ESTE FORMATO:
+
+
+
+
+
+
+
+
+export const useCounterStore = defineStore('counter', {
+  state: () => ({ count: 0, name: 'Eduardo' }),
+  getters: {
+    doubleCount: (state) => state.count * 2,
+  },
+  actions: {
+    increment() {
+      this.count++
+    },
+  },
+})
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+temos 1 state object, computed e functions (actions)...
+
+
+
+
+
+CRIAMOS O AUTH STORE,
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => ({
+    user: null,
+  }),
+  getters: {
+    isAuthenticated(state) {
+      return !!state.user;
+    },
+  },
+});
+
+export default useAuthStore;
+
+
+
+
+
+
+
+
+certo...
+
+
+
+
+
+
+
+
+
+
+
+o segundo argumento é aquele object com todas as coisas,
+
+
+o state e as actions... e os getters...
+
+
+
+
+
+
+
+
+
+
+
+
+STATE:
+
+
+
+  state: () => ({
+    user: null,
+  }),
+
+
+
+
+
+
+
+
+-> ELE RECEBE 1 FUNCTION COMO VALUE...
+
+
+
+--> E ESSA FUNCTION TEM QUE __ RETORNAR 1 VALUE,
+
+SEMPRE..
+
+
+
+
+O VALUE É SEMPRE O STATE...
+
+
+
+
+
+
+
+
+
+
+PODEMOS COMEÇAR ASSIM:
+
+
+
+
+
+
+
+
+
+
+import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => {
+    return {
+      user: 'jon',
+    };
+  },
+  getters: {
+
+  },
+});
+
+export default useAuthStore;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--> OK... E TEMOS actions...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--> NÃO VAMOS USAR 'getters' nesse video... mas é bom deixar ali, por referência...
+
+
+
+
+
+
+
+
+
+
+
+PODERÍAMOS ESCREVER ASSIM:
+
+
+
+
+
+
+
+
+import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => {
+    return {
+      user: 'jon',
+    };
+  },
+  actions: {
+    setUser(user) {
+      this.user = user;
+    },
+  },
+  //   getters: {},
+});
+
+export default useAuthStore;
+
+
+
+
+
+
+
+
+
+
+
+
+AGORA DIGAMOS QUE QUEREMOS 
+
+
+
+''GRAB THIS USER IN A COMPONENT''...
+
+
+
+
+
+
+
+
+
+
+
+
+-> para isso, usaremos o component de 'RegisterView',
+
+    como exemplo...
+
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+
+
+
+<script setup></script>
+
+import { reactive } from 'vue'; const formData = reactive({ name: '', email: '',
+password: '', password_confirmation: '', });
+
+<template>
+  <main>
+    <h1 class="title">Register a new Account</h1>
+    <form
+      @submit.prevent="console.log(formData)"
+      class="w-1/2 mx-auto space-y-6"
+    >
+      <div>
+        <input type="text" placeholder="Name" v-model="formData.name" />
+      </div>
+      <div>
+        <input type="email" placeholder="Email" v-model="formData.email" />
+      </div>
+      <div>
+        <input
+          type="password"
+          placeholder="Password"
+          v-model="formData.password"
+        />
+      </div>
+      <div>
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          name="confirm_password"
+          v-model="formData.password_confirmation"
+        />
+      </div>
+      <button class="primary-btn">Register</button>
+    </form>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+A PRIMEIRA COISA QUE PRECISAMOS FAZER É 'IMPORT OUR STORE'...
+
+
+
+
+
+
+
+
+
+-> para isso, escrevemos assim:
+
+
+
+
+
+
+
+
+<script setup>
+import { reactive } from 'vue';
+import useAuthStore from '@/stores/auth';
+
+const authStore = useAuthStore();
+
+const formData = reactive({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+});
+
+</script>
+
+
+
+<template>
+  <main>
+    <h1 class="title">Register a new Account</h1>
+    <form @submit.prevent="console.log(formData)" class="w-1/2 mx-auto space-y-6">
+      <div>
+        <input type="text" placeholder="Name" v-model="formData.name" />
+      </div>
+      <div>
+        <input type="email" placeholder="Email" v-model="formData.email" />
+      </div>
+      <div>
+        <input type="password" placeholder="Password" v-model="formData.password" />
+      </div>
+      <div>
+        <input type="password" placeholder="Confirm Password" name="confirm_password"
+          v-model="formData.password_confirmation" />
+      </div>
+      <button class="primary-btn">Register</button>
+    </form>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+COM ISSO, IMPORTAMOS ESSE NEGÓCIO, 
+
+
+esse 'useAuthStore'...
+
+
+
+
+
+
+
+
+E ISSO NOS DÁ O STORE INTEIRO...
+
+
+
+
+
+
+ESSE STORE É O NOSSO OBJECT...
+
+
+
+
+TEMOS ACESSO A:
+
+
+1) the user 
+
+2) getters 
+
+3) actions 
+
+
+
+
+
+QUAISQUER COISAS QUE EXISTAM NO STORE, PODEMOS USAR 
+
+NO NOSSO MARKUP...
+
+
+
+
+
+
+
+
+-> CERTO... ENTÃO DIGAMOS QUE QUEREMOS USAR O USER 
+
+
+NO TEMPLATE...
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+    <h1 class="title">Register a new Account {{ authStore.user }}</h1>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OK... ISSO PRINTA 'jon'...
+
+
+
+
+
+
+
+
+OU SEJA, É ASSIM QUE PODEMOS PEGAR COISAS, LÁ DO NOSSO STORE...
+
+
+
+
+
+
+
+
+
+
+
+
+OK... AGORA DIGAMOS QUE 
+
+VC TEM 1 COMPUTED PROPERTY,
+
+LÁ 
+
+
+
+NA SUA STORE... AS COMPUTED PROPERTIES SÃO DEFINIDAS LÁ NOS 'getters'...
+
+
+
+
+
+
+
+
+
+
+
+PODERÍAMOS ESCREVER ASSIM:
+
+
+
+
+
+import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => {
+    return {
+      user: 'jon',
+    };
+  },
+  actions: {
+    setUser(user) {
+      this.user = user;
+    },
+  },
+  //   getters: {
+  //     userAge: (state) => state.user
+  // }, // * Computed properties are set here.
+});
+
+export default useAuthStore;
+
+
+
+
+
+
+
+
+
+
+
+
+E ACESSAR ESSE GETTER COM 
+
+
+
+    <h1 class="title">Register a new Account {{ authStore.userAge }}</h1>
+
+
+
+
+
+
+
+
+
+
+
+OU SEJA, É A MESMA SINTAXE... dot notation...
+
+
+
+
+
+
+
+
+
+
+
+
+NÃO PRECISAMOS DE GETTERS, POR ISSO DELETAMOS ISSO...
+
+
+
+
+
+
+
+
+
+MAS PRECISAMOS DE ACTIONS NESSE APP...
+
+
+
+PRECISAMOS DE ACTIONS PARA:
+
+
+
+1) getUser function 
+
+
+2) register function 
+
+
+3) login function 
+
+
+4) logout...
+
+
+
+
+
+
+
+COMEÇAMOS COM O 'register' e 'login',
+
+que são o auth de verdade...
+
+
+
+
+
+PARA DEFINIR ESSAS ACTIONS,
+
+
+ESCREVEMOS ASSIM:
+
+
+
+
+
+
+
+
+
+  actions: {
+    authenticate() {
+      this.user = 'jon';
+    },
+  },
+
+
+
+
+
+
+
+
+  o professor vai usar o nome de 'authenticate()'
+
+  PARA TANTO O LOGIN E REGISTER...
+
+
+
+
+
+O PROFESSOR QUER USAR O MESMO NOME PARA AMBOS METHODS...
+
+
+
+
+
+
+''THE ONLY THING THAT WOULD CHANGE IS THE _ _ ENDPOINT''...
+
+
+
+
+
+
+
+
+
+
+
+--> PARA ISSO, VAMOS CHAMAR NOSSO API, NESSA FUNCTION...
+
+
+
+
+
+-> VAMOS USAR A FETCH API,
+
+E APONTAR PARA 
+
+
+'/api/register'...
+
+
+
+
+
+
+
+
+
+
+
+
+
+--> PODEMOS ESCREVER ALGO ASSIM:
+
+
+
+
+
+
+  actions: {
+    authenticate: async () => {
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: 'jon@gmail.com',
+          password: '123456',
+        }),
+      });
+    },
+  },
+
+
+
+
+
+
+
+
+
+NÓS JÁ TÍNHAMOS CONFIGURADO 
+
+
+O PROJETO VUE, COM 'vite.config.js',
+
+
+PARA 
+
+
+APONTAR À API DO LARAVEL,
+
+
+
+E PARA TER ALGUNS HEADERS ESSENCIAIS DE JSON...
+
+
+
+
+
+
+
+
+MAS PRECISAMOS PASSAR PARAMETERS VÁLIDOS AO BODY...
+
+
+E NÃO HARDCODE...
+
+
+
+
+O BODY SERÁ A FORMDATA...
+
+
+
+
+
+
+-> ACEITAMOS 1 PARAMETER NA NOSSA FUNCTION, 'formData'...
+
+
+
+
+
+
+
+
+PARA PASSAR ISSO, FICA ASSIM O 'RegisterView.vue':
+
+
+
+
+
+
+
+
+<script setup>
+import { reactive } from 'vue';
+import useAuthStore from '@/stores/auth';
+
+const authStore = useAuthStore();
+
+const formData = reactive({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+});
+
+</script>
+
+
+
+<template>
+  <main>
+    <h1 class="title">Register a new Account {{ authStore.user }}</h1>
+    <form @submit.prevent="authStore.authenticate(formData)"></form>
+    <div>
+      <input type="text" placeholder="Name" v-model="formData.name" />
+    </div>
+    <div>
+      <input type="email" placeholder="Email" v-model="formData.email" />
+    </div>
+    <div>
+      <input type="password" placeholder="Password" v-model="formData.password" />
+    </div>
+    <div>
+      <input type="password" placeholder="Confirm Password" name="confirm_password"
+        v-model="formData.password_confirmation" />
+    </div>
+    <button class="primary-btn">Register</button>
+    </form>
+  </main>
+</template>
+
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+    <form @submit.prevent="authStore.authenticate(formData)"></form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+E O NEGÓCIO FICA ASSIM:
+
+
+
+
+
+
+import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => {
+    return {
+      user: 'jon',
+    };
+  },
+  actions: {
+    authenticate: async (formData) => {
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+    },
+  },
+  //   getters: {
+  //     userAge: (state) => state.user
+  // }, // * Computed properties are set here.
+});
+
+export default useAuthStore;
+
+
+
+
+
+
+
+
+
+
+CERTO... MAS AINDA NÃO ACABAMOS...
+
+
+
+
+
+
+
+
+
+
+''QUEREMOS USAR ESSA MESMA FUNCTION PARA LOGIN E REGISTER''...
+
+
+
+
+--> É POR ISSO QUE ESSA ROUTE DEVE SER DYNAMIC... PRECISAMOS DE OUTRO PARAMETER,
+
+chamado de 'apiRoute' (para diferenciar entre 'register' e 'login')...
+
+
+
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+
+import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => {
+    return {
+      user: 'jon',
+    };
+  },
+  actions: {
+    authenticate: async (apiRoute, formData) => {
+      const res = await fetch(`/api/${apiRoute}`, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+    },
+  },
+  //   getters: {
+  //     userAge: (state) => state.user
+  // }, // * Computed properties are set here.
+});
+
+export default useAuthStore;
+
+
+
+
+
+
+
+E ASSIM:
+
+
+
+
+
+
+
+
+<script setup>
+import { reactive } from 'vue';
+import useAuthStore from '@/stores/auth';
+
+const authStore = useAuthStore();
+
+const formData = reactive({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+});
+
+</script>
+
+
+
+<template>
+  <main>
+    <h1 class="title">Register a new Account {{ authStore.user }}</h1>
+    <form @submit.prevent="authStore.authenticate('register', formData)">
+      <div>
+        <input type="text" placeholder="Name" v-model="formData.name" />
+      </div>
+      <div>
+        <input type="email" placeholder="Email" v-model="formData.email" />
+      </div>
+      <div>
+        <input type="password" placeholder="Password" v-model="formData.password" />
+      </div>
+      <div>
+        <input type="password" placeholder="Confirm Password" name="confirm_password"
+          v-model="formData.password_confirmation" />
+      </div>
+      <button class="primary-btn">Register</button>
+    </form>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+depois disso, queremos formatar a json data,
+
+com tipo isto:
+
+
+
+
+
+
+
+
+import { defineStore } from 'pinia';
+
+const useAuthStore = defineStore('auth', {
+  state: () => {
+    return {
+      user: 'jon',
+    };
+  },
+  actions: {
+    authenticate: async (apiRoute, formData) => {
+      const res = await fetch(`/api/${apiRoute}`, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      console.log(data);
+    },
+  },
+});
+
+export default useAuthStore;
+
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+O PROFESSOR PROVAVELMENTE VAI QUERER COPIAR E CRIAR 1 
+ROUTE EXTRA PARA ESSE NEGÓCIO,
+
+
+DE LOGIN...
+
+
+
+
+
+
+
+
+
+
+NÃO É BOM CHAMAR ESSA FUNCTION INLINE...
+
+
+
+
+
+
+
+
+
+
+
+
+--> DEVEMOS CHAMAR ESSA FUNCTION DE 
+  AUTHENTICATE DO LADO DE FORA,
+
+
+  como 'handleSubmit()'...
+
+
+
+
+  o professor faz inline, de forma porca...
+
+
+
+
+
+
+
+
+
+
+  OK... PARECE QUE ESTOU CONSEGUINDO ME COMUNICAR COM 
+
+  A API DO LARAVEL,
+
+
+  MAS EU NÃO DEFINI NENHUMA ROUTE NELA...
+
+
+
+
+
+
+
+
+--> basicamente, no projeto do professor,
+
+ele colocou toda lógica 
+
+dentro de 'api.php',
+
+
+PQ É ESSA ROUTE QUE É ACTUALLY TARGETTADA 
+POR NOSSO APP VUE...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--> ok... instalei o 
+
+
+laravel/sanctum....
+
+
+
+
+
+precisei arrumar mais algumas configurações,
+
+e os controllers adequados, também...
+
+
+
+
+
+
+
+
+
+ok... tudo parece estar certo...
