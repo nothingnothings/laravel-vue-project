@@ -1,0 +1,3565 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+QUEREMOS ESCRVER:
+
+
+
+
+
+1) CREATE 
+
+2) READ 
+
+3) UPDATE 
+
+4) DELETE 
+
+
+
+DE POSTS...
+
+
+
+
+
+
+
+
+
+COMEÇAMOS COM O CREATE DE 1 POST..
+
+
+
+
+
+
+
+
+
+-> CRIAMOS 1 ESQUELETO PARA A PAGE DE CREATE POSTS:
+
+
+
+<script setup></script>
+
+<template>
+    <main>
+        <h1 class="title">Create a new Post</h1>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+ESSA ROUTE TAMBÉM ESTÁ PROTEGIDA:
+
+
+
+
+
+    {
+      path: '/create',
+      name: 'create',
+      component: CreateView,
+      meta: { auth: true },
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+-> NA NOSSA VIEW DE CreateView,
+
+
+
+ESCREVEMOS ASsim:
+
+
+
+
+
+<script setup></script>
+
+<template>
+    <main>
+        <h1 class="title">Create a new Post</h1>
+        <form class="w-1/2 mx-auto space-y-6">
+            <div>
+                <input type="text" placeholder="Post Title">
+            </div>
+            <div>
+                <textarea name="6" placeholder="Post Content" id=""></textarea>
+            </div>
+
+            <button class="primary-btn">Create</button>
+        </form>
+    </main>
+</template>
+
+
+
+
+
+
+
+CERTO... 
+
+
+
+AGORA TEMOS A FORM...
+
+
+
+
+
+
+
+
+
+-> VAI SER BEM PARECIDO COM O VÍDEO ANTERIOR...
+
+
+
+
+
+
+
+
+
+-> PRECISAMOS PEGAR A DATA DESSA FORM... SERÁ UM REACTIVE DO VUE,
+
+TIPO ASSIM:
+
+
+
+
+
+<script setup>
+
+import { reactive } from 'vue';
+
+const formData = reactive({
+    title: '',
+    body: '',
+});
+
+</script>
+
+<template>
+    <main>
+        <h1 class="title">Create a new Post</h1>
+        <form class="w-1/2 mx-auto space-y-6">
+            <div>
+                <input type="text" placeholder="Post Title">
+            </div>
+            <div>
+                <textarea name="6" placeholder="Post Content" id=""></textarea>
+            </div>
+
+            <button class="primary-btn">Create</button>
+        </form>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+AÍ BINDAMOS ISSO, COM 'v-model',
+
+
+nos nossos  input fields....
+
+
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+
+
+<script setup>
+
+import { reactive } from 'vue';
+
+const formData = reactive({
+    title: '',
+    body: '',
+});
+
+</script>
+
+<template>
+    <main>
+        <h1 class="title">Create a new Post</h1>
+        <form class="w-1/2 mx-auto space-y-6">
+            <div>
+                <input type="text" placeholder="Post Title" v-model="formData.title" />
+            </div>
+            <div>
+                <textarea name="6" placeholder="Post Content" v-model="formData.body"></textarea>
+            </div>
+
+            <button class="primary-btn">Create</button>
+        </form>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OK... AÍ VAMOS COLOCAR O SUBMIT...
+
+
+
+
+ex:
+
+
+
+
+
+
+
+
+
+
+
+<script setup>
+
+import { reactive } from 'vue';
+
+const formData = reactive({
+    title: '',
+    body: '',
+});
+
+</script>
+
+<template>
+    <main>
+        <h1 class="title">Create a new Post</h1>
+        <form @submit.prevent="console.log(formData)" class="w-1/2 mx-auto space-y-6">
+            <div>
+                <input type="text" placeholder="Post Title" v-model="formData.title" />
+            </div>
+            <div>
+                <textarea name="6" placeholder="Post Content" v-model="formData.body"></textarea>
+            </div>
+
+            <button class="primary-btn">Create</button>
+        </form>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+
+
+
+AGORA PRECISAMOS DE UMA FUNCTION, NO STORE,
+
+PARA ENVIAR A FORM AO NOSSO API LARAVEL...
+
+
+
+
+
+
+
+
+-> PODEMOS TER OUTRO STORE,
+
+PARA ESSE STORE 
+
+
+DE POSTS...
+
+
+
+por isso criamos um store de 'posts.js'...
+
+
+
+
+
+
+
+
+
+
+PODEMOS COMEÇAR ASSIM:
+
+
+
+
+
+
+
+
+
+export const usePostsStore = defineStore('posts', {
+  state: () => {
+    return {
+      errors: {},
+    };
+  },
+  actions: {
+    async getPosts() {
+      const res = await fetch('/api/posts');
+      const data = await res.json();
+      if (res.ok) {
+        this.posts = data;
+      }
+    },
+    async createPost(formData) {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        this.posts.push(data);
+      }
+    },
+  },
+});
+
+export default usePostsStore;
+
+
+
+
+
+
+
+
+
+
+
+
+
+O PROFESSOR ESCREVE + OU - ASSIM:
+
+
+
+
+
+
+
+    async createPost(formData) {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        this.posts.push(data);
+      }
+    },
+
+
+
+MAS PRECISAMOS DOS HEADERS...
+
+
+
+
+já temos alguns dos headers,
+
+mas precisamos da authorization key,
+
+PQ ESSA ROUTE É PROTEGIDA PELO 
+
+auth:sanctum, 
+
+
+no backend laravel...
+
+
+
+
+
+EX:
+
+
+
+
+
+    async createPost(formData) {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        this.posts.push(data);
+      }
+    },
+
+
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+export const usePostsStore = defineStore('posts', {
+  state: () => {
+    return {
+      errors: {},
+    };
+  },
+  actions: {
+    // async getPosts() {
+    //   const res = await fetch('/api/posts');
+    //   const data = await res.json();
+    //   if (res.ok) {
+    //     this.posts = data;
+    //   }
+    // },
+    async createPost(formData) {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        // this.posts.push(data);
+      }
+    },
+  },
+});
+
+export default usePostsStore;
+
+
+
+
+
+
+
+
+
+AGORA PRECISAMOS CHAMAR ESSE METHOD DE POST,
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+<script setup>
+
+import { reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+
+const { createPost } = usePostsStore();
+
+const formData = reactive({
+    title: '',
+    body: '',
+});
+
+</script>
+
+<template>
+    <main>
+        <h1 class="title">Create a new Post</h1>
+        <form @submit.prevent="createPost(formData)" class="w-1/2 mx-auto space-y-6">
+            <div>
+                <input type="text" placeholder="Post Title" v-model="formData.title" />
+            </div>
+            <div>
+                <textarea name="6" placeholder="Post Content" v-model="formData.body"></textarea>
+            </div>
+
+            <button class="primary-btn">Create</button>
+        </form>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OK...
+
+
+
+
+
+
+QUEREMOS PEGAR OS ERRORS E MOSTRÁ-LOS AOS USERS,
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+export const usePostsStore = defineStore('posts', {
+  state: () => {
+    return {
+      errors: {},
+    };
+  },
+  actions: {
+    // async getPosts() {
+    //   const res = await fetch('/api/posts');
+    //   const data = await res.json();
+    //   if (res.ok) {
+    //     this.posts = data;
+    //   }
+    // },
+    async createPost(formData) {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const data = await res.json();
+
+      if(data.errors) {
+        this.errors = data.errors;
+      } else {
+        console.log(data);
+      }
+    },
+  },
+});
+
+export default usePostsStore;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DEPOIS, ASSIM:
+
+
+
+
+
+
+
+
+
+<script setup>
+
+import { reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+
+const postsStore = usePostsStore();
+const { createPost } = usePostsStore();
+
+
+const formData = reactive({
+    title: '',
+    body: '',
+});
+
+</script>
+
+<template>
+    <main>
+        <h1 class="title">Create a new Post</h1>
+        <form @submit.prevent="createPost(formData)" class="w-1/2 mx-auto space-y-6">
+            <div>
+                <input type="text" placeholder="Post Title" v-model="formData.title" />
+                <p v-if="postsStore.errors.title" class="error">{{ postsStore.errors.title[0] }}</p>
+            </div>
+            <div>
+                <textarea name="6" placeholder="Post Content" v-model="formData.body"></textarea>
+                <p v-if="postsStore.errors.body" class="error">{{ postsStore.errors.body[0] }}</p>
+            </div>
+
+            <button class="primary-btn">Create</button>
+        </form>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+AGORA AS ERROR MESSAGES SÃO MOSTRADAS CORRETAMENTE, NA TELA...
+
+
+
+
+
+
+
+
+QUEREMOS FAZER ALGUMAS MUDANÇAS NO BACKEND...
+
+
+
+
+
+
+-> PQ NÓS TALVEZ QUEIRAMOS 'THE USER THAT CREATED THIS POST'
+
+
+no return object...
+
+
+
+
+
+
+
+
+-> É POR ISSO QUE ABRIMOS O PostController,
+
+
+E AÍ ESCREVEMOS TIPO ASSIM...
+
+
+
+
+
+antes, ele estava assim:
+
+
+
+
+
+
+
+
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $fields = $request->validate([
+            'title' => 'required|max:255',
+            'body' => 'required'
+        ]);
+
+        $post = $request->user()->posts()->create($fields);
+
+        return $post;
+    }
+
+
+
+
+
+
+
+
+
+
+estamos retornando apenas o post...
+
+
+mas seria bom RETORNAR O USER TAMBÉM...
+
+
+
+
+
+PARA ISSO, ESCREVEMOS ASSIM:
+
+
+
+
+
+
+  /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $fields = $request->validate([
+            'title' => 'required|max:255',
+            'body' => 'required'
+        ]);
+
+        $post = $request->user()->posts()->create($fields);
+
+        return ['post' => $post, 'user' => $post->user];
+        // return $post;
+    }
+
+
+
+
+
+
+
+PODEMOS PEGAR O USER ASSIM JUSTAMENTE PQ 
+
+TEMOS 1 RELATIONSHIP ENTRE ESSES 2 MODELS...
+
+
+
+
+
+
+
+AGORA FICAMOS COM 1 RESPONSE COM 
+
+2 OBJECTS,
+
+
+
+info do 'post' e do 'user'...
+
+
+
+
+MAS AGORA QUEREMOS REDIRECIONAR O USER,
+
+
+COM O VUE ROUTER,
+NO PINIA,
+
+tipo assim:
+
+
+
+
+
+
+
+
+
+
+
+export const usePostsStore = defineStore('posts', {
+  state: () => {
+    return {
+      errors: {},
+    };
+  },
+  actions: {
+    // async getPosts() {
+    //   const res = await fetch('/api/posts');
+    //   const data = await res.json();
+    //   if (res.ok) {
+    //     this.posts = data;
+    //   }
+    // },
+    async createPost(formData) {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const data = await res.json();
+
+      if (data.errors) {
+        this.errors = data.errors;
+      } else {
+        this.router.push({ name: 'home' });
+      }
+    },
+  },
+});
+
+export default usePostsStore;
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+
+
+
+PRECISAMOS DE UMA ACTION PARA PEGAR TODOS OS POSTS..
+
+
+
+
+
+
+
+
+
+
+--> FAZEMOS ISSO LÁ NO posts store,
+
+tipo assim:
+
+
+
+
+
+
+  actions: {
+    async getAllPosts() {
+      const res = await fetch('/api/posts');
+      const data = await res.json();
+
+      console.log(data);
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+AGORA SÓ PRECISAMOS CHAMAR ISSO NA HOME PAGE,
+
+SEMPRE QUE ESSE COMPONENT FOR MONTADO NO DOM,
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+<script setup>
+import { onMounted } from 'vue';
+
+// import TheWelcome from '../components/TheWelcome.vue'
+import { usePostsStore } from '@/stores/posts';
+
+const { getAllPosts } = usePostsStore();
+
+onMounted(() => {
+  getAllPosts();
+})
+</script>
+
+<template>
+  <main>
+    <!-- <TheWelcome /> -->
+    <h1 class="title">Latest Posts</h1>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+OK... AGORA PRECISAMOS RENDERIZAR OS POSTS....
+
+
+
+
+
+
+
+
+-> MAS NÃO ESTAMOS VENDO O USER DE CADA POST...
+
+PRECISAMOS AJUSTAR ISSO...
+
+
+
+
+MAS SE VOLTAMOS AO NOSSO VIEW,
+
+
+QUEREMOS FAZER WAIT PELA RESPONSE...
+
+
+
+
+
+
+
+
+-> O PROFESSOR CRIA UM EMPTY ARRAY DE POSTS,
+
+
+LOCAL,
+
+
+QUE SERÁ USADO DENTRO DO 'ref' da vue...
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+
+
+<script setup>
+import { onMounted, ref } from 'vue';
+
+// import TheWelcome from '../components/TheWelcome.vue'
+import { usePostsStore } from '@/stores/posts';
+
+const { getAllPosts } = usePostsStore();
+
+const posts = ref([]); // local state.
+
+onMounted(async () => posts.value = await getAllPosts());
+
+</script>
+
+<template>
+  <main>
+    <!-- <TheWelcome /> -->
+    <h1 class="title">Latest Posts</h1>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+E ASSIM:
+
+
+
+
+
+
+
+
+
+
+<script setup>
+import { onMounted, ref } from 'vue';
+
+// import TheWelcome from '../components/TheWelcome.vue'
+import { usePostsStore } from '@/stores/posts';
+
+const { getAllPosts } = usePostsStore();
+
+const posts = ref([]); // local state.
+
+onMounted(async () => posts.value = await getAllPosts());
+
+</script>
+
+<template>
+  <main>
+    <h1 class="title">Latest Posts</h1>
+
+    <div v-if="posts.length > 0">
+      <div v-for="post in posts" :key="post.id">
+        <h2>{{ post.title }}</h2>
+      </div>
+    </div>
+    <div v-else>No posts found.</div>
+  </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+AGORA VAMOS CONSERTAR O PROBLEMA DE NÃO RECEBER 
+
+
+
+
+O USER também...
+
+
+
+
+
+
+O PROBLEMA É ESTE, EM 'index()':
+
+
+
+
+
+
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        return Post::with('user')->latest()->get();
+        // return Post::all();
+    }
+
+
+
+
+
+
+
+
+
+
+COMO VC PODE VER,
+
+ESTAMOS RETORNANDO TODOS OS POSTS,
+
+SEM O USER,
+E SEM SORTING...
+
+
+
+
+
+
+
+-> PARA FAZER TUDO ISSO, USAMOS '::with' com 'latest()',
+
+TIPO ASSIM:
+
+
+
+
+
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        return Post::with('user')->latest()->get();
+        // return Post::all();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+quer dizer que vamos obter o user de cada post, também...
+
+
+
+
+'latest' -> sorta a data, de acordo com a column 'created_at'...
+
+
+
+
+-> MAS QUEREMOS SORTAR EM 1 DESCENDING ORDER...
+
+
+
+
+
+
+--> E É EXATAMENTE ISSO QUE CONSEGUIMOS, JÁ...
+
+
+
+
+
+
+
+
+
+
+-> EDITAMOS O MARKUP,
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+
+<script setup>
+import { onMounted, ref } from 'vue';
+
+// import TheWelcome from '../components/TheWelcome.vue'
+import { usePostsStore } from '@/stores/posts';
+
+const { getAllPosts } = usePostsStore();
+
+const posts = ref([]); // local state.
+
+onMounted(async () => posts.value = await getAllPosts());
+
+</script>
+
+<template>
+  <main>
+    <h1 class="title">Latest Posts</h1>
+
+    <div v-if="posts.length > 0">
+      <div v-for="post in posts" :key="post.id" class="border-l-4 border-blue-500 pl-4 mb-12">
+        <h2 class="font-bold text-3xl">{{ post.title }}</h2>
+        <p class="text-sm text-slate-600 mb-4">{{ post.user.name }}</p>
+        <p>
+          {{ post.body }}
+        </p>
+      </div>
+    </div>
+    <div v-else>No posts found.</div>
+  </main>
+</template>
+
+
+
+
+
+
+
+ESSE FOI O READ DE TODOS OS POSTS...
+
+
+
+
+
+O PRÓXIMO PASSO É CRIAR 1 LINK PARA CADA POST INDIVIDUAL,
+
+QUE VAI LEVAR 
+
+A CADA POST INDIVIDUAL...
+
+
+
+
+
+
+--> ESCREVEMOS TIPO ASSIM:
+
+
+
+
+
+
+
+          <RouterLink class="text-blue-500 font-bold-underline" :to="{ name: 'show', params: { id: post.id } }">Read
+            more...
+          </RouterLink>
+
+
+
+
+
+usamos 'params',
+para passar parameters,
+
+
+
+que será o id do post...
+
+
+
+
+
+
+
+
+
+
+AÍ CRIAMOS A ROUTE PARA O link de 'show',
+
+TIPO ASSIM:
+
+
+
+
+
+    {
+      path: '/posts/:id',
+      name: 'show',
+      component: ShowView,
+    },
+
+
+
+
+
+
+
+
+essa será uma public route,
+
+por isso nenhum meta: auth: true ...
+
+
+
+
+esse parameter deverá matchear com o que vc colocou no RouterLink,
+
+
+como aqui:
+
+
+
+
+          <RouterLink class="text-blue-500 font-bold-underline" :to="{ name: 'show', params: { id: post.id } }">Read
+            more...
+          </RouterLink>
+
+
+
+
+
+
+
+
+
+
+AÍ CRIAMOS A ShowView,
+
+
+tipo assim:
+
+
+
+
+
+
+
+
+
+<script setup>
+
+import { reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+
+const postsStore = usePostsStore();
+const { createPost } = usePostsStore();
+
+
+const formData = reactive({
+    title: '',
+    body: '',
+});
+
+</script>
+
+<template>
+    <main>
+        <h1 class="title">Show View</h1>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+
+
+
+
+
+agora precisamos criar o markup dessa page...
+
+
+
+
+
+
+
+
+
+
+
+
+
+-> AGORA PRECISAMOS FAZER 1 API CALL,
+COM BASE NESSE ID,
+
+
+NAS ACTIONS...
+
+
+
+
+
+
+-> tipo getSinglePost...
+
+
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+    async getSinglePost(id) {
+      const res = await fetch(`/api/posts/${id}`);
+      const data = await res.json();
+
+      console.log(data);
+    },
+
+
+
+
+
+
+FICOU TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+
+
+export const usePostsStore = defineStore('posts', {
+  state: () => {
+    return {
+      errors: {},
+    };
+  },
+  actions: {
+    async getAllPosts() {
+      const res = await fetch('/api/posts');
+      const data = await res.json();
+
+      return data;
+    },
+    async getSinglePost(id) {
+      const res = await fetch(`/api/posts/${id}`);
+      const data = await res.json();
+
+      return data;
+    },
+    async createPost(formData) {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const data = await res.json();
+
+      if (data.errors) {
+        this.errors = data.errors;
+      } else {
+        this.router.push({ name: 'home' });
+      }
+    },
+  },
+});
+
+export default usePostsStore;
+
+
+
+
+
+
+
+
+
+
+
+
+
+NA VIEW DE SHOW,
+
+ESCREVEMOS ASSIM:
+
+
+
+
+
+
+
+<script setup>
+
+import { onMounted, reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+
+const postsStore = usePostsStore();
+const { getSinglePost } = usePostsStore();
+
+
+onMounted(
+    () => getSinglePost();
+)
+
+</script>
+
+<template>
+    <main>
+        <h1 class="title">Show View</h1>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-> mas esse method call PRECISA DE 1 POST ID...
+
+
+
+
+
+-_> COMO VAMOS PEGAR ESSE ID?
+
+
+PRECISAMOS DO VUE ROUTER...
+
+
+
+
+
+
+
+
+
+MAS ESTAMOS PEGANDO APENAS O POST, SEM PEGAR O USER...
+
+
+
+
+
+
+MAS JÁ SABEMOS COMO CONSERTAR ISSO, É NO BACKEND...
+
+
+
+
+
+
+
+
+
+-> CONSERTAMOS TIPO ASSIM:
+
+
+
+
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Post $post)
+    {
+        return ['post' => $post, 'user' => $post->user];
+        // return $post;
+    }
+
+
+
+
+
+
+
+TIRAMOS AQUELE 
+
+'return $post' puro... para pegar o user object também...
+
+
+
+
+
+
+parei aos 25 minutos.
+
+
+
+
+
+
+
+
+
+-> PARA ACESSAR A ROUTE,
+
+
+
+usamos 
+
+
+
+const route = useRoute();
+
+
+
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+<script setup>
+
+import { onMounted, reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+
+const route = useRoute(); // * get the vue router, to get the segment, in the url.
+
+const postsStore = usePostsStore();
+const { getSinglePost } = usePostsStore();
+
+
+onMounted(() => getSinglePost(route.params.id));
+
+
+</script>
+
+<template>
+    <main>
+        <h1 class="title">Show View</h1>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-> CERTO...
+
+
+
+
+DE VOLTA AO NOSSO WEBSITE,
+
+
+ESTAMOS CONSEGUINDO ESSA DATA DE VOLTA....
+
+
+
+
+
+
+
+
+
+
+
+--> AÍ CRIAMOS UMA REF PARA ISSO,
+  PARA RECEBER A DATA DO POST...
+
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+
+
+<script setup>
+
+import { onMounted, reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+
+const route = useRoute(); // * get the vue router, to get the segment, in the url.
+
+const postsStore = usePostsStore();
+const { getSinglePost } = usePostsStore();
+
+const post = ref(null);
+
+
+onMounted(async () => await getSinglePost(route.params.id));
+
+
+</script>
+
+<template>
+    <main>
+        <h1 class="title">Show View</h1>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+AÍ PODEMOS USAR ESSA VARIABLE, 'POST',
+
+
+NO COMPONENT,
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+
+
+
+<script setup>
+
+import { onMounted, reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+
+const route = useRoute(); // * get the vue router, to get the segment, in the url.
+
+const postsStore = usePostsStore();
+const { getSinglePost } = usePostsStore();
+
+const post = ref(null);
+
+
+onMounted(async () => await getSinglePost(route.params.id));
+
+
+</script>
+
+<template>
+    <main>
+        <div v-if="post">
+            <div class="border-l-4 border-blue-500 pl-4 mb-12">
+                <h2 class="font-bold text-3xl">{{ post.title }}</h2>
+                <p class="text-sm text-slate-600 mb-4">{{ post.user.name }}</p>
+                <p>
+                    {{ post.body }}
+                </p>
+            </div>
+        </div>
+        <div v-else>Post does not exist.</div>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+MAS FIZEMOS 1 ERRO.... 
+
+
+
+
+PQ O OBJECT QUE ESTÁ SENDO RETORNADO TEM 'POST' E 'USER'...
+
+
+
+
+
+-> MAS QUEREMOS APENAS O POST EM SI,
+SEM O USER...
+
+
+
+
+
+
+
+-> PARA CONSERTAR ISSO, VAMOS 
+  ATÉ O STORE DE POSTS,
+
+  NO METHOD DE 'getPost()',
+
+
+  E AÍ 
+
+
+
+  colocamos apenas 'data.post'....
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+
+
+
+    async getSinglePost(id) {
+      const res = await fetch(`/api/posts/${id}`);
+      const data = await res.json();
+
+      return data.post; // return only the post, without the user.
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  AÍ CRIAMOS UM NOVO POST,
+
+
+  COM 1 USER DIFERENTE, PARA VER SE TUDO ESTÁ FUNCIONANDO...
+
+
+
+
+
+
+
+
+
+  --> FAZEMOS REGISTER DE 1 NOVO USER...
+
+
+
+
+
+
+
+
+
+-> CRIAMOS UM NOVO POST...
+
+
+
+
+
+
+
+--> AÍ FICAMOS COM 2 POSTS DIFERENTES,
+
+DE 2 DIFERENTES USERS...
+
+
+
+
+
+
+
+
+
+
+
+
+TUDO QUE RESTA, AGORA, É O UPDATE E DELETE DE NOSSOS POSTS...
+
+
+
+
+
+
+
+
+
+
+--> O DELETE É MAIS FÁCIL, E PODE SER FEITO 
+  NA MESMA PAGE de 'show'...
+
+
+
+
+
+
+
+
+--> escrevemos tipo assim:
+
+
+
+
+
+
+
+
+              <div>
+                    <form action="" class="text-red-500 font-bold px-2 py-1 border border-red-300">
+                        <button>Delete</button>
+                    </form>
+                </div>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+QUANDO CLICARMOS NESSE BUTTON,
+
+
+QUEREMOS FAZER SUBMIT DA FORM A NOSSA API, COM A INFORMATION DE QUE 
+NOSSA ROUTE DE DELETE PRECISA..
+
+
+
+
+
+
+
+-> CRIAMOS UMA NOVA ACTION,
+
+DE DELETE,
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+    async deletePost(id) {
+      const res = await fetch(`/api/posts/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const data = await res.json();
+
+      if (data.errors) {
+        this.errors = data.errors;
+      } else {
+        this.router.push({ name: 'home' });
+      }
+    },
+
+
+  
+
+
+
+
+
+
+COMEÇAMOS COM ISSO, BASICAMENTE...
+
+
+
+
+
+
+MAS AINDA PRECISAMOS DE ALGUNS AJUSSTES...
+
+
+
+
+
+PRECISAMOS DA AUTHORIZATION KEY... PQ ESSA ROUTE É PROTEGIDA 
+
+PELO 'auth.sanctum'...
+
+
+
+
+
+PRECISAMOS GARANTIR QUE O USER QUE ESTÁ SUBMITTANDO ESSA 
+FORM REALMENTE É DONO DO POST...
+
+
+
+
+
+
+
+
+
+--> DEPOIS DISSO, criamos uma variable de 'data',
+
+
+
+e aí settamos como await res.json()..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--> MAS PRECISAMOS CHECAR SE O USER REALMENTE É DONO DO POST,
+
+ANTES DE 
+
+ENVIAR O POST...
+
+
+
+
+
+
+
+
+COLOCAMOS UMA CONDITION ASSIM:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-> ESSA FUNCTION DE deletePost
+
+
+VAI FAZER EXPECT DE 1 OBJECT INTEIRO,
+
+
+O POST INTEIRO,
+
+E NÃO APENAS O POST ID...
+
+
+
+
+
+--> aí escrevemos assim:
+
+
+
+
+
+
+
+
+    async deletePost(post) {
+      const authStore = useAuthStore();
+
+      if (authStore.user.id === post.user_id) {
+        const res = await fetch(`/api/posts/${post.id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        const data = await res.json();
+
+        console.log(data);
+      }
+    },
+
+
+
+
+
+
+
+
+
+
+
+lá na view de show, escrevemos assim:
+
+
+
+
+
+
+
+
+
+
+<script setup>
+
+import { onMounted, reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+
+const route = useRoute(); // * get the vue router, to get the segment, in the url.
+
+const postsStore = usePostsStore();
+const { getSinglePost, deletePost } = usePostsStore();
+
+const post = ref(null);
+
+
+onMounted(async () => await getSinglePost(route.params.id));
+
+
+</script>
+
+<template>
+    <main>
+        <div v-if="post">
+            <div class="border-l-4 border-blue-500 pl-4 mt-12">
+                <h2 class="font-bold text-3xl">{{ post.title }}</h2>
+                <p class="text-sm text-slate-600 mb-4">{{ post.user.name }}</p>
+                <p>
+                    {{ post.body }}
+                </p>
+                <div>
+                    <form @submit.prevent="deletePost(post)"
+                        class="text-red-500 font-bold px-2 py-1 border border-red-300">
+                        <button>Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div v-else>Post does not exist.</div>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+
+
+
+MAS DEVEMOS ESCONDER ESSE BUTTON,
+
+
+CASO O USER NÃO SEJA DONO DESSE POST...
+
+
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+
+
+
+    async deletePost(post) {
+      const authStore = useAuthStore();
+
+      if (authStore.user.id === post.user_id) {
+        const res = await fetch(`/api/posts/${post.id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        const data = await res.json();
+
+        console.log(data);
+      } else {
+        console.log('You do not own this post');
+      }
+    },
+
+
+
+
+
+
+
+
+
+
+OK... AGORA CLICAMOS NO BUTTON,
+
+E O POST É DELETADO...
+
+
+
+
+
+
+
+
+
+
+MAS AINDA FICAMOS NA MESMA PAGE,
+
+O QUE É RUIM... PRECISAMOS 
+
+
+REDIRECIONAR O USER À HOME PAGE,
+
+QUANDO O POST FOR DELETADO...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-> PARA ISSO, PODEMOS ADICIONAR UMA v-if directive 
+
+no button,
+
+tipo assim:
+
+
+
+
+
+
+
+
+
+
+
+<script setup>
+
+import { onMounted, reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+import useAuthStore from '@/stores/auth';
+
+const route = useRoute(); // * get the vue router, to get the segment, in the url.
+
+const postsStore = usePostsStore();
+const authStore = useAuthStore();
+const { getSinglePost, deletePost } = usePostsStore();
+
+const post = ref(null);
+
+
+onMounted(async () => post.value = await getSinglePost(route.params.id));
+
+
+</script>
+
+<template>
+    <main>
+        <div v-if="post">
+            <div class="border-l-4 border-blue-500 pl-4 mt-12">
+                <h2 class="font-bold text-3xl">{{ post.title }}</h2>
+                <p class="text-sm text-slate-600 mb-4">{{ post.user.name }}</p>
+                <p>
+                    {{ post.body }}
+                </p>
+                <div v-if="authStore.user && authStore.user.id === post.user_id" class="flex items-center gap-6 mt-6">
+                    <form @submit.prevent="deletePost(post)"
+                        class="text-red-500 font-bold px-2 py-1 border border-red-300">
+                        <button>Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div v-else>Post does not exist.</div>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+BASICAMENTE,
+
+ISTO AQUI:
+
+
+
+
+
+
+
+                <div v-if="authStore.user && authStore.user.id === post.user_id" class="flex items-center gap-6 mt-6">
+
+
+
+
+
+
+
+
+-> precisamos do 'authStore.user' condition 
+
+
+para evitar 1 error...
+
+
+
+
+
+
+
+
+
+
+
+
+
+OK...
+
+
+
+
+
+
+
+O QUE MAIS FALTOU?
+
+
+
+o redirect do user, à home page...
+
+
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+
+    async deletePost(post) {
+      const authStore = useAuthStore();
+
+      if (authStore.user.id === post.user_id) {
+        const res = await fetch(`/api/posts/${post.id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          this.router.push({ name: 'home' });
+        }
+      } else {
+        console.log('You do not own this post');
+      }
+    },
+
+
+
+
+
+
+  PRECISAMOS TIRAR ESSE ELSE BLOCK....
+
+
+
+
+
+
+
+
+  EX:
+
+
+
+
+
+
+
+
+
+
+
+
+  import useAuthStore from './auth';
+
+export const usePostsStore = defineStore('posts', {
+  state: () => {
+    return {
+      errors: {},
+    };
+  },
+  actions: {
+    async getAllPosts() {
+      const res = await fetch('/api/posts');
+      const data = await res.json();
+
+      return data;
+    },
+    async getSinglePost(id) {
+      const res = await fetch(`/api/posts/${id}`);
+      const data = await res.json();
+
+      return data.post; // return only the post, without the user.
+    },
+    async createPost(formData) {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const data = await res.json();
+
+      if (data.errors) {
+        this.errors = data.errors;
+      } else {
+        this.router.push({ name: 'home' });
+      }
+    },
+    async deletePost(post) {
+      const authStore = useAuthStore();
+
+      if (authStore.user.id === post.user_id) {
+        const res = await fetch(`/api/posts/${post.id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          this.router.push({ name: 'home' });
+        }
+      }
+    },
+  },
+});
+
+export default usePostsStore;
+
+
+
+
+
+
+
+
+
+
+
+
+AGORA FALTOU O UPDATE DE 1 POST...
+
+
+
+
+
+
+
+
+--> QUEREMOS TER A VIEW DE 'EditView',
+
+
+EM QUE TEREMOS A PAGE PARA UPDATAR A VIEW...
+
+
+
+
+
+
+
+
+
+
+O LINK:
+
+
+
+
+
+
+
+
+<script setup>
+
+import { onMounted, reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+import useAuthStore from '@/stores/auth';
+
+const route = useRoute(); // * get the vue router, to get the segment, in the url.
+
+const postsStore = usePostsStore();
+const authStore = useAuthStore();
+const { getSinglePost, deletePost } = usePostsStore();
+
+const post = ref(null);
+
+
+onMounted(async () => post.value = await getSinglePost(route.params.id));
+
+
+</script>
+
+<template>
+    <main>
+        <div v-if="post">
+            <div class="border-l-4 border-blue-500 pl-4 mt-12">
+                <h2 class="font-bold text-3xl">{{ post.title }}</h2>
+                <p class="text-sm text-slate-600 mb-4">{{ post.user.name }}</p>
+                <p>
+                    {{ post.body }}
+                </p>
+                <div v-if="authStore.user && authStore.user.id === post.user_id" class="flex items-center gap-6 mt-6">
+                    <form @submit.prevent="deletePost(post)"
+                        class="text-red-500 font-bold px-2 py-1 border border-red-300">
+                        <button>Delete</button>
+                    </form>
+                    <RouterLink class="text-green-500 font-bold px-2 py-1 border border-green-300"
+                        :to="{ name: 'edit', params: { id: post.id } }">Update</RouterLink>
+                </div>
+            </div>
+        </div>
+        <div v-else>Post does not exist.</div>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+AGORA PRECISAMOS DA ROUTE PARA O EDIT...
+
+
+
+
+
+
+
+
+
+--> FAZEMOS TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+import RegisterView from '../views/auth/RegisterView.vue';
+import LoginView from '@/views/auth/LoginView.vue';
+import CreateView from '@/views/Posts/CreateView.vue';
+import ShowView from '@/views/Posts/ShowView.vue';
+import EditView from '@/views/Posts/EditView.vue';
+import useAuthStore from '@/stores/auth';
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
+      meta: { guest: true },
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView,
+      meta: { guest: true },
+    },
+    {
+      path: '/create',
+      name: 'create',
+      component: CreateView,
+      meta: { auth: true },
+    },
+    {
+      path: '/posts/:id',
+      name: 'show',
+      component: ShowView,
+    },
+    {
+      path: '/posts/update/:id',
+      name: 'edit',
+      component: EditView
+    },
+  ],
+});
+
+// Check if user is authenticated, and show the proper route, based on that state:
+router.beforeEach(async (to, from) => {
+  const authStore = useAuthStore();
+
+  await authStore.getUser();
+
+  if (authStore.user && to.meta.guest) {
+    return { name: 'home' };
+  }
+
+  if (!authStore.user && to.meta.auth) {
+    return { name: 'login' };
+  }
+});
+
+export default router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ok... mas precisamos da auth property,
+
+pq essa route 
+será apenas para authenticated users,
+
+por isso escrevemos assim:
+
+
+
+
+
+
+    {
+      path: '/posts/update/:id',
+      name: 'edit',
+      component: EditView,
+      meta: { auth: true },
+    },
+
+
+
+
+
+
+
+
+
+
+AGORA SÓ PRECISAMOS PROVIDENCIAR ESSE ATTRIBUTE DE 'id' 
+
+PARA O NOSSO ROUTER LINK...
+
+
+
+
+
+ISSO JÁ FOI FEITO, COM ESTA SINTAXE:
+
+
+
+
+
+   <RouterLink class="text-green-500 font-bold px-2 py-1 border border-green-300"
+                        :to="{ name: 'edit', params: { id: post.id } }">Update</RouterLink>
+
+
+
+
+
+
+
+
+
+
+certo...
+
+
+
+
+
+
+
+QUEREMOS QUE 'SE O USER NÃO É O OWNER DO POST,
+              ELE SERÁ REDIRECIONADO DE VOLTA à PAGE DE HOME'...
+
+
+
+
+          (um authorization guard)..
+
+
+
+
+
+
+
+
+--> MAS, ANTES DISSO, QUEREMOS CRIAR 1 FORM PARA O UPDATE...
+
+
+
+
+
+
+
+--> TIPO ASSIM:
+
+
+
+
+
+
+
+<script setup>
+
+import { reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+
+const { editPost } = usePostsStore();
+const postsStore = usePostsStore();
+
+const formData = reactive({
+    title: '',
+    body: '',
+});
+
+
+</script>
+
+<template>
+    <main>
+        <h1 class="title">Update a Post</h1>
+        <form @submit.prevent="editPost(formData)" class="w-1/2 mx-auto space-y-6">
+            <div>
+                <input type="text" placeholder="Post Title" v-model="formData.title" />
+                <p v-if="postsStore.errors.title" class="error">{{ postsStore.errors.title[0] }}</p>
+            </div>
+            <div>
+                <textarea name="6" placeholder="Post Content" v-model="formData.body"></textarea>
+                <p v-if="postsStore.errors.body" class="error">{{ postsStore.errors.body[0] }}</p>
+            </div>
+
+            <button class="primary-btn">Update</button>
+        </form>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+OK...
+
+
+
+
+
+
+
+MAS QUEREMOS POPULATE ESSES INPUT FIELDS 
+
+COM A DATA QUE TEMOS DO DATABASE, POR ISSO 
+
+VAMOS USAR O METHOD DE 'getSinglePost',
+
+
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+
+
+
+<script setup>
+
+import { reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+
+const { editPost, getSinglePost } = usePostsStore();
+const postsStore = usePostsStore();
+
+const formData = reactive({
+    title: '',
+    body: '',
+});
+
+
+</script>
+
+<template>
+    <main>
+        <h1 class="title">Update a Post</h1>
+        <form @submit.prevent="editPost(formData)" class="w-1/2 mx-auto space-y-6">
+            <div>
+                <input type="text" placeholder="Post Title" v-model="formData.title" />
+                <p v-if="postsStore.errors.title" class="error">{{ postsStore.errors.title[0] }}</p>
+            </div>
+            <div>
+                <textarea name="6" placeholder="Post Content" v-model="formData.body"></textarea>
+                <p v-if="postsStore.errors.body" class="error">{{ postsStore.errors.body[0] }}</p>
+            </div>
+
+            <button class="primary-btn">Update</button>
+        </form>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+E ASSIM:
+
+
+
+
+
+
+
+
+
+
+
+
+<script setup>
+
+import { reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+
+const { editPost, getSinglePost } = usePostsStore();
+const postsStore = usePostsStore();
+
+const route = useRoute(); // * get the vue router, to get the segment, in the url.
+
+const formData = reactive({
+    title: '',
+    body: '',
+});
+
+const post = ref(null);
+
+onMounted(async () => {
+    post.value = await getSinglePost(route.params.id);
+});
+
+
+</script>
+
+<template>
+    <main>
+        <h1 class="title">Update a Post</h1>
+        <form @submit.prevent="editPost(formData)" class="w-1/2 mx-auto space-y-6">
+            <div>
+                <input type="text" placeholder="Post Title" v-model="formData.title" />
+                <p v-if="postsStore.errors.title" class="error">{{ postsStore.errors.title[0] }}</p>
+            </div>
+            <div>
+                <textarea name="6" placeholder="Post Content" v-model="formData.body"></textarea>
+                <p v-if="postsStore.errors.body" class="error">{{ postsStore.errors.body[0] }}</p>
+            </div>
+
+            <button class="primary-btn">Update</button>
+        </form>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+OK... É A MESMA COISA QUE FIZEMOS COM A 'ShowView'...
+
+
+
+
+
+
+
+
+
+
+agora precisamos definir o value de 'formData.title' 
+
+e 
+
+'formData.body'
+
+COMO SENDO ISSO AÍ,
+
+TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+onMounted(async () => {
+    post.value = await getSinglePost(route.params.id);
+
+    formData.title = post.value.title;
+    formData.body = post.value.body;
+});
+
+
+
+
+
+
+
+
+OK...
+
+
+
+
+
+
+
+
+MAS AGORA PRECISAMOS PREVENIR O ACCESS 
+
+DESSA PAGE,
+
+PARA PESSOAS QUE NÃO SÃO DONAS DESSE POST...
+
+
+
+
+
+
+
+
+--> PRECISAMOS SER REDIRECIONADOS,
+  EM CASES EM QUE NÃO SOMOS DONOS DE ESSE POST,
+
+  E TENTAMOS ACESSAR ESSA PAGE DE EDIT DO POST DE OUTRA PESSOA...
+
+
+
+
+
+
+
+
+
+
+--> PODEMOS FAZER O REDIRECT LÁ NO 'onMounted',
+
+
+TAMBÉM... BASTA CHECAR SE O ID DO POST É IGUAL AO 
+
+ID DO AUTHENTICATED USER..
+
+
+
+
+
+
+
+
+TIPO ASSIM:
+
+
+
+
+  
+
+
+
+
+  <script setup>
+
+import { reactive } from 'vue';
+
+import { usePostsStore } from '@/stores/posts';
+
+import { useAuthStore } from '@/stores/auth';
+
+
+const authStore = useAuthStore();
+const { editPost, getSinglePost } = usePostsStore();
+const postsStore = usePostsStore();
+
+const route = useRoute(); // * get the vue router, to get the segment, in the url.
+
+const formData = reactive({
+    title: '',
+    body: '',
+});
+
+const post = ref(null);
+
+onMounted(async () => {
+    post.value = await getSinglePost(route.params.id);
+
+    if (user.value.id !== post.value.user_id) {
+        authStore.router.push({ name: 'home' });
+    }
+
+    formData.title = post.value.title;
+    formData.body = post.value.body;
+});
+
+
+
+
+
+
+
+
+se o valeu dos ids é diferente, vamos redirecionar...
+
+
+
+
+
+
+
+
+
+
+
+MAS ASSIM É MEIO MESSY, MELHOR IMPORTAR O ROUTER DIRETAMENTE, TIPO ASSIM:
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script setup>
+
+import { reactive } from 'vue';
+
+import { useRoute, useRouter } from 'vue-router';
+
+import { usePostsStore } from '@/stores/posts';
+
+import { useAuthStore } from '@/stores/auth';
+
+
+const authStore = useAuthStore();
+const { editPost, getSinglePost } = usePostsStore();
+const postsStore = usePostsStore();
+
+const route = useRoute(); // * get the vue router, to get the segment, in the url.
+const router = useRouter();
+
+const formData = reactive({
+    title: '',
+    body: '',
+});
+
+const post = ref(null);
+
+onMounted(async () => {
+    post.value = await getSinglePost(route.params.id);
+
+    if (authStore.user.value.id !== post.value.user_id) {
+        router.push({ name: 'home' });
+    } else {
+        formData.title = post.value.title;
+        formData.body = post.value.body;
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+
+
+
+
+ERA ISSO QUE PRECISÁVAMOS FAZER, PARA PROTEGER AS ROUTES...
+
+
+
+
+
+
+
+
+
+
+AGORA PRECISAMOS DO METHOD PARA ACTUALLY UPDATE ESSE POST...
+
+
+
+VAMOS CRIAR ESSE METHOD AGORA...
+
+
+
+
+
+
+
+
+
+EX:
+
+
+
+
+
+
+
+
+
+
+
+
+    async updatePost(post, formData) {
+      const authStore = useAuthStore();
+
+      if (authStore.user.id === post.user_id) {
+        const res = await fetch(`/api/posts/${post.id}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+
+        if (data.errors) {
+          this.errors = data.errors;
+        } else {
+          this.router.push({ name: 'home' });
+        }
+      }
+    },
+
+
+
+
+
+
+
+
+
+
+
+FINALMENTE, NA VIEW DE UPDATE,
+
+
+TEMOS QUE IMPORTAR ESSE METHOD DO STORE,
+
+E AÍ ESCREVEMOS ASSIM:
+
+
+
+
+
+
+
+
+
+
+
+
+<script setup>
+
+import { reactive } from 'vue';
+
+import { useRoute, useRouter } from 'vue-router';
+
+import { usePostsStore } from '@/stores/posts';
+
+import { useAuthStore } from '@/stores/auth';
+
+
+const authStore = useAuthStore();
+const { editPost, getSinglePost, updatePost } = usePostsStore();
+const postsStore = usePostsStore();
+
+const route = useRoute(); // * get the vue router, to get the segment, in the url.
+const router = useRouter();
+
+const formData = reactive({
+    title: '',
+    body: '',
+});
+
+const post = ref(null);
+
+onMounted(async () => {
+    post.value = await getSinglePost(route.params.id);
+
+    if (authStore.user.value.id !== post.value.user_id) {
+        router.push({ name: 'home' });
+    } else {
+        formData.title = post.value.title;
+        formData.body = post.value.body;
+    }
+});
+
+
+</script>
+
+<template>
+    <main>
+        <h1 class="title">Update a Post</h1>
+        <form @submit.prevent="updatePost(post, formData)" class="w-1/2 mx-auto space-y-6">
+            <div>
+                <input type="text" placeholder="Post Title" v-model="formData.title" />
+                <p v-if="postsStore.errors.title" class="error">{{ postsStore.errors.title[0] }}</p>
+            </div>
+            <div>
+                <textarea name="6" placeholder="Post Content" v-model="formData.body"></textarea>
+                <p v-if="postsStore.errors.body" class="error">{{ postsStore.errors.body[0] }}</p>
+            </div>
+
+            <button class="primary-btn">Update</button>
+        </form>
+    </main>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CERTO...
+
+
+
+
+
+
+
+
+
+MAS PRECISAMOS RESETTAR O STATE DE ERRORS, POR ISSO ESCREVEMOS ASSIM:
+
+
+
+   async updatePost(post, formData) {
+      const authStore = useAuthStore();
+
+      if (authStore.user.id === post.user_id) {
+        const res = await fetch(`/api/posts/${post.id}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+
+        if (data.errors) {
+          this.errors = data.errors;
+        } else {
+          this.router.push({ name: 'home' });
+          this.errors = {};
+        }
+      }
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+COM ISSO, TERMINAMOS...
+
+
+
+
+
+
+CRIAMOS:
+
+
+1) UMA API COMPLETA
+
+
+2) COM AUTH, USANDO LARAVEL E LARAVEL SANCTUM...
+
+
+3) E TAMBÉM VIMOS COM VUEJS... para usar essa api...

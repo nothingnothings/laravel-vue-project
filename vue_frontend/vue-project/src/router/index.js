@@ -3,6 +3,8 @@ import HomeView from '../views/HomeView.vue';
 import RegisterView from '../views/auth/RegisterView.vue';
 import LoginView from '@/views/auth/LoginView.vue';
 import CreateView from '@/views/Posts/CreateView.vue';
+import ShowView from '@/views/Posts/ShowView.vue';
+import EditView from '@/views/Posts/EditView.vue';
 import useAuthStore from '@/stores/auth';
 
 const router = createRouter({
@@ -29,6 +31,17 @@ const router = createRouter({
       path: '/create',
       name: 'create',
       component: CreateView,
+      meta: { auth: true },
+    },
+    {
+      path: '/posts/:id',
+      name: 'show',
+      component: ShowView,
+    },
+    {
+      path: '/posts/update/:id',
+      name: 'edit',
+      component: EditView,
       meta: { auth: true },
     },
   ],
